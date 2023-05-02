@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Benchmarks</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="enter_collection">Please enter collection size and number of elements to compare</string>
+    <string name="collection_size">Collection size</string>
+    <string name="calculate">Calculate</string>
 </resources>

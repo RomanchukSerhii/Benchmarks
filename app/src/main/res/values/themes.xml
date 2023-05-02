@@ -12,5 +12,10 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="materialButtonStyle">@style/GlobalButtonStyle</item>
+    </style>
+    <style name="GlobalButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="android:textSize">14sp</item>
+        <item name="fontFamily">@font/poppins_medium</item>
     </style>
 </resources>
