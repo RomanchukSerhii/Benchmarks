@@ -1,4 +1,4 @@
-package com.example.benchmarks.model
+package com.example.benchmarks.model.enums
 
 enum class CollectionsName(val collectionName: String) {
     ARRAY_LIST("ArrayList"),

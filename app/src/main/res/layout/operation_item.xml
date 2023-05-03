@@ -7,9 +7,11 @@
     android:layout_margin="5dp">
 
     <TextView
+        android:id="@+id/tv_result"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/operation_item_background"
+        android:text="@string/average_execution_time"
         tools:text="Adding in the beginning ArrayList N/A ms"
         android:fontFamily="@font/poppins_medium"
         android:textColor="@color/black"

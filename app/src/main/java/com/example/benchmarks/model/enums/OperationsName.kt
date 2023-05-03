@@ -1,4 +1,4 @@
-package com.example.benchmarks.model
+package com.example.benchmarks.model.enums
 
 enum class OperationsName(val operationName: String) {
     ADDING_IN_THE_BEGINNING("Adding in the beginning"),

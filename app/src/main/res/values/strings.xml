@@ -7,4 +7,5 @@
     <string name="calculate">Calculate</string>
     <string name="start">Start</string>
     <string name="elements_amount">Elements amount:</string>
+    <string name="average_execution_time">%s %s %d ms</string>
 </resources>
