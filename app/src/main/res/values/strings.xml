@@ -5,4 +5,6 @@
     <string name="enter_collection">Please enter collection size and number of elements to compare</string>
     <string name="collection_size">Collection size</string>
     <string name="calculate">Calculate</string>
+    <string name="start">Start</string>
+    <string name="elements_amount">Elements amount:</string>
 </resources>
