@@ -5,9 +5,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.benchmarks.adapters.OperationListAdapter
 import com.example.benchmarks.databinding.FragmentCollectionsBinding
 import com.example.benchmarks.model.enums.CollectionsName
 import com.example.benchmarks.model.Operation
+import com.example.benchmarks.model.OperationsService
 import com.example.benchmarks.model.enums.OperationsName
 
 class CollectionsFragment : Fragment() {
@@ -16,7 +18,9 @@ class CollectionsFragment : Fragment() {
     private val binding: FragmentCollectionsBinding
         get() = _binding ?: throw RuntimeException("FragmentCollectionsBinding == null")
 
-    private val operationList = mutableListOf<Operation>()
+    private val operationAdapter: OperationListAdapter by lazy {
+        OperationListAdapter()
+    }
 
 
     override fun onCreateView(
@@ -25,7 +29,13 @@ class CollectionsFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentCollectionsBinding.inflate(inflater, container, false)
+
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        operationAdapter.submitList(OperationsService().getOperationList())
     }
 
     override fun onDestroyView() {

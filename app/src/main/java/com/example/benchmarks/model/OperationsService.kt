@@ -12,12 +12,16 @@ class OperationsService {
             for (operation in OperationsName.values()) {
                 listOperations.add(
                     Operation(
-                        collection.collectionName,
                         operation.operationName,
+                        collection.collectionName,
                         0
                     )
                 )
             }
         }
+    }
+
+    fun getOperationList(): List<Operation> {
+        return listOperations.toList()
     }
 }

@@ -20,7 +20,7 @@ class OperationListAdapter : ListAdapter<Operation, OperationViewHolder>(DiffCal
 
     override fun onBindViewHolder(holder: OperationViewHolder, position: Int) {
         val currentOperation = getItem(position)
-        holder.bind(currentOperation)
+        holder.bind(currentOperation, holder.itemView.context)
     }
 
     companion object {
