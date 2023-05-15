@@ -1,13 +1,18 @@
-package com.example.benchmarks.adapters
+package com.example.benchmarks.view.adapters
 
+import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import com.example.benchmarks.R
 import com.example.benchmarks.databinding.OperationItemBinding
 import com.example.benchmarks.model.Operation
 
-class OperationListAdapter : ListAdapter<Operation, OperationViewHolder>(DiffCallback){
+class OperationListAdapter : ListAdapter<Operation, OperationListAdapter.OperationViewHolder>(DiffCallback){
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OperationViewHolder {
         val binding = OperationItemBinding.inflate(
@@ -21,6 +26,25 @@ class OperationListAdapter : ListAdapter<Operation, OperationViewHolder>(DiffCal
     override fun onBindViewHolder(holder: OperationViewHolder, position: Int) {
         val currentOperation = getItem(position)
         holder.bind(currentOperation, holder.itemView.context)
+    }
+
+    class OperationViewHolder(
+        private var binding: OperationItemBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(operation: Operation, context: Context) {
+            if (operation.isExecuted) {
+                binding.progressExecuted.visibility = View.VISIBLE
+                binding.tvResult.setTextColor(ContextCompat.getColor(context, R.color.gray_transparent))
+            } else {
+                binding.progressExecuted.visibility = View.GONE
+            }
+            binding.tvResult.text = context.getString(
+                R.string.average_execution_time,
+                operation.operationName,
+                operation.collectionName,
+                operation.averageExecutionTime
+            )
+        }
     }
 
     companion object {

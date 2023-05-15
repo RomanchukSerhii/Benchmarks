@@ -14,7 +14,8 @@ class OperationsService {
                     Operation(
                         operation.operationName,
                         collection.collectionName,
-                        0
+                        0,
+                        true
                     )
                 )
             }
