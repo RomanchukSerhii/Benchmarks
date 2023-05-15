@@ -3,6 +3,6 @@ package com.example.benchmarks.model
 data class Operation (
     val operationName: String,
     val collectionName: String,
-    var averageExecutionTime: Int,
-    var isExecuted: Boolean
+    val averageExecutionTime: Int,
+    val isExecuted: Boolean
 )

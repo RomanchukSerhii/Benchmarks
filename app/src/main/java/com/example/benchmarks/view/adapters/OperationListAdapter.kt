@@ -32,18 +32,25 @@ class OperationListAdapter : ListAdapter<Operation, OperationListAdapter.Operati
         private var binding: OperationItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(operation: Operation, context: Context) {
-            if (operation.isExecuted) {
-                binding.progressExecuted.visibility = View.VISIBLE
-                binding.tvResult.setTextColor(ContextCompat.getColor(context, R.color.gray_transparent))
-            } else {
-                binding.progressExecuted.visibility = View.GONE
+            with(binding) {
+                if (operation.isExecuted) {
+                    progressExecuted.visibility = View.VISIBLE
+                    tvResult.setTextColor(
+                        ContextCompat.getColor(context, R.color.gray_transparent)
+                    )
+                } else {
+                    progressExecuted.visibility = View.GONE
+                    tvResult.setTextColor(
+                        ContextCompat.getColor(context, R.color.black)
+                    )
+                }
+                tvResult.text = context.getString(
+                    R.string.average_execution_time,
+                    operation.operationName,
+                    operation.collectionName,
+                    operation.averageExecutionTime
+                )
             }
-            binding.tvResult.text = context.getString(
-                R.string.average_execution_time,
-                operation.operationName,
-                operation.collectionName,
-                operation.averageExecutionTime
-            )
         }
     }
 

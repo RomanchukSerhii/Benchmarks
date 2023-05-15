@@ -11,10 +11,15 @@ import kotlinx.coroutines.withContext
 import java.util.LinkedList
 import java.util.concurrent.CopyOnWriteArrayList
 
-class CollectionsFragmentViewModel : ViewModel() {
+class CollectionsFragmentViewModel(
+    private val operationsService: OperationsService
+) : ViewModel() {
     private val arrayList = arrayListOf<Int>()
     private val linkedList = LinkedList<Int>()
     private val copyOnWrite = CopyOnWriteArrayList<Int>()
+
+    private val _operations = MutableLiveData<List<Operation>>()
+    val operations: LiveData<List<Operation>> = _operations
 
     private val _collectionsState = MutableLiveData<CollectionsState>()
     val collectionsState: LiveData<CollectionsState> = _collectionsState
@@ -22,14 +27,22 @@ class CollectionsFragmentViewModel : ViewModel() {
     private val _progress = MutableLiveData<Progress>()
     val progress: LiveData<Progress> = _progress
 
-    fun startCollections(size: Int) {
-        fillList(size)
-        _progress.value = Progress
-        viewModelScope.launch() {
-            calculateAddingInTheBeginning(arrayList)
-            calculateAddingInTheBeginning(linkedList)
-            calculateAddingInTheBeginning(copyOnWrite)
-        }
+    private val listener: ListOperationListener = {
+        _operations.value = it
+    }
+
+    init {
+        loadOperations()
+    }
+
+    fun startCollections() {
+        operationsService.startOperations()
+//        _progress.value = Progress
+//        viewModelScope.launch() {
+//            calculateAddingInTheBeginning(arrayList)
+//            calculateAddingInTheBeginning(linkedList)
+//            calculateAddingInTheBeginning(copyOnWrite)
+//        }
 
     }
 
@@ -64,6 +77,10 @@ class CollectionsFragmentViewModel : ViewModel() {
             }
 
         }
+    }
+
+    private fun loadOperations() {
+        operationsService.addListListeners(listener)
     }
 
     companion object {
