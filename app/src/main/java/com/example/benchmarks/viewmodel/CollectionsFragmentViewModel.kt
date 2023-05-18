@@ -14,9 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 class CollectionsFragmentViewModel(
     private val operationsService: OperationsService
 ) : ViewModel() {
-    private val arrayList = arrayListOf<Int>()
-    private val linkedList = LinkedList<Int>()
-    private val copyOnWrite = CopyOnWriteArrayList<Int>()
+
 
     private val _operations = MutableLiveData<List<Operation>>()
     val operations: LiveData<List<Operation>> = _operations
@@ -44,14 +42,6 @@ class CollectionsFragmentViewModel(
 //            calculateAddingInTheBeginning(copyOnWrite)
 //        }
 
-    }
-
-    private fun fillList(size: Int) {
-        repeat(size) {
-            arrayList.add(DIGIT_TO_FILL)
-            linkedList.add(DIGIT_TO_FILL)
-            copyOnWrite.add(DIGIT_TO_FILL)
-        }
     }
 
     private suspend fun calculateAddingInTheBeginning(collectionType: Collection<Int>) {
