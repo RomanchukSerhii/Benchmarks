@@ -1,8 +1,8 @@
 package com.example.benchmarks
 
 import android.app.Application
-import com.example.benchmarks.model.OperationsService
+import com.example.benchmarks.model.ListOperationsService
 
 class App : Application() {
-    val operationsService = OperationsService()
+    val listOperationsService = ListOperationsService()
 }

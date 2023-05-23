@@ -8,11 +8,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import com.example.benchmarks.view.adapters.OperationListAdapter
 import com.example.benchmarks.databinding.FragmentCollectionsBinding
-import com.example.benchmarks.model.enums.CollectionsName
-import com.example.benchmarks.model.Operation
-import com.example.benchmarks.model.OperationsService
-import com.example.benchmarks.model.enums.OperationsName
-import com.example.benchmarks.view.factory
+import com.example.benchmarks.factory
 import com.example.benchmarks.viewmodel.CollectionsFragmentViewModel
 
 class CollectionsFragment : Fragment() {
@@ -42,11 +38,11 @@ class CollectionsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        operationAdapter.submitList(OperationsService().getOperationList())
         observedViewModel()
         binding.recycler.adapter = operationAdapter
         binding.buttonStart.setOnClickListener {
-            viewModel.startCollections()
+            val size = binding.etTimesAmount.text.toString().toInt()
+            viewModel.startCollections(size)
         }
     }
 

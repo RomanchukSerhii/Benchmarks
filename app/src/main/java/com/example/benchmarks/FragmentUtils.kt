@@ -1,10 +1,8 @@
-package com.example.benchmarks.view
+package com.example.benchmarks
 
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.benchmarks.App
-import com.example.benchmarks.model.OperationsService
 import com.example.benchmarks.viewmodel.CollectionsFragmentViewModel
 
 class ViewModelFactory(
@@ -13,7 +11,7 @@ class ViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         val viewModel = when(modelClass) {
             CollectionsFragmentViewModel::class.java -> {
-                CollectionsFragmentViewModel(app.operationsService)
+                CollectionsFragmentViewModel(app.listOperationsService)
             }
             else -> throw IllegalStateException("Unknown view model class $modelClass")
         }
