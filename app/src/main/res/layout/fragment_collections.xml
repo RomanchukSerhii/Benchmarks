@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".view.screens.CollectionsFragment"
-    android:padding="20sp">
+    android:padding="20dp">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_times_amount"
