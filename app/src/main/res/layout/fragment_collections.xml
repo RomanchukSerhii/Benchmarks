@@ -7,59 +7,6 @@
     tools:context=".view.screens.CollectionsFragment"
     android:padding="20sp">
 
-    <TextView
-        android:visibility="gone"
-        android:id="@+id/tv_enter_collection_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/poppins_regular"
-        android:text="@string/enter_collection"
-        android:textColor="@color/black"
-        android:textSize="14sp"
-        android:paddingBottom="21dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/til_enter_collection_size"/>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:visibility="gone"
-        android:id="@+id/til_enter_collection_size"
-        android:layout_width="0dp"
-        android:layout_height="64dp"
-        android:hint="@string/collection_size"
-        android:textColorHint="@color/gray"
-        app:boxStrokeWidth="0dp"
-        app:boxStrokeWidthFocused="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_enter_collection_title"
-        app:layout_constraintVertical_chainStyle="packed">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/et_enter_collection_size"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/edit_text_background"
-            android:fontFamily="@font/poppins_medium"
-            android:inputType="number"
-            android:textSize="14sp" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-
-
-    <Button
-        android:visibility="gone"
-        android:id="@+id/button_calculate"
-        style="@style/GlobalButtonStyle"
-        android:layout_width="match_parent"
-        android:layout_height="62dp"
-        android:text="@string/calculate"
-        android:background="@drawable/button_background"
-        app:backgroundTint="@null"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_times_amount"
         android:layout_width="0dp"
