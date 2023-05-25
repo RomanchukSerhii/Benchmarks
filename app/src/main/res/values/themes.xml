@@ -2,8 +2,8 @@
     <!-- Base application theme. -->
     <style name="Theme.Benchmarks" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorPrimary">@color/yellow</item>
+        <item name="colorPrimaryVariant">@color/yellow</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_200</item>
@@ -13,6 +13,7 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
         <item name="materialButtonStyle">@style/GlobalButtonStyle</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
     <style name="GlobalButtonStyle" parent="Widget.MaterialComponents.Button">
         <item name="android:textSize">14sp</item>
