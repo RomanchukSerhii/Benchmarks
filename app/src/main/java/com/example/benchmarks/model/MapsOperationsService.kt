@@ -1,12 +1,11 @@
 package com.example.benchmarks.model
 
-import com.example.benchmarks.model.enums.CollectionOperations
-import com.example.benchmarks.model.enums.CollectionsName
+
 import com.example.benchmarks.model.enums.MapsName
 import com.example.benchmarks.model.enums.MapsOperations
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import java.util.concurrent.CopyOnWriteArrayList
+import kotlinx.coroutines.cancel
 
 typealias MapsOperationsListener = (operations: List<Operation>) -> Unit
 class MapsOperationsService {
@@ -28,5 +27,29 @@ class MapsOperationsService {
                 )
             }
         }
+    }
+
+    fun startOperations(size: Int) {
+
+    }
+
+    fun cancelCoroutine() {
+        myCoroutineScope.cancel()
+    }
+    fun addListListeners(listener: ListOperationsListener) {
+        listeners.add(listener)
+        listener.invoke(operations)
+    }
+
+    fun removeListListeners(listener: ListOperationsListener) {
+        listeners.remove(listener)
+    }
+
+    private fun updateList() {
+        operations = ArrayList(operations)
+    }
+
+    private fun notifyListChanges() {
+        listeners.forEach { it.invoke(operations) }
     }
 }
