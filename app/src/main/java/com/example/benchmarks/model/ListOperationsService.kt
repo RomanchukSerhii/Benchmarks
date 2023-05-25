@@ -1,7 +1,7 @@
 package com.example.benchmarks.model
 
 import com.example.benchmarks.model.enums.CollectionsName
-import com.example.benchmarks.model.enums.OperationsName
+import com.example.benchmarks.model.enums.CollectionOperations
 import kotlinx.coroutines.*
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
@@ -18,7 +18,7 @@ class ListOperationsService {
 
     init {
         for (collection in CollectionsName.values()) {
-            for (operation in OperationsName.values()) {
+            for (operation in CollectionOperations.values()) {
                 operations.add(
                     Operation(
                         operation.operationName,
@@ -108,50 +108,50 @@ class ListOperationsService {
     }
 
     private suspend fun addingInTheBeginningExecutionTime(collectionType: CollectionsName, size: Int) {
-        val operationName = OperationsName.ADDING_IN_THE_BEGINNING
+        val operationName = CollectionOperations.ADDING_IN_THE_BEGINNING
         val executionTime = getExecutionTime(collectionType, operationName, size)
         setResult( collectionType, operationName, executionTime )
     }
 
     private suspend fun addingInTheMiddleExecutionTime(collectionType: CollectionsName, size: Int) {
-        val operationName = OperationsName.ADDING_IN_THE_MIDDLE
+        val operationName = CollectionOperations.ADDING_IN_THE_MIDDLE
         val executionTime = getExecutionTime(collectionType, operationName, size)
         setResult(collectionType, operationName, executionTime)
     }
 
     private suspend fun addingInTheEndExecutionTime(collectionType: CollectionsName, size: Int) {
-        val operationName = OperationsName.ADDING_IN_THE_END
+        val operationName = CollectionOperations.ADDING_IN_THE_END
         val executionTime = getExecutionTime(collectionType, operationName, size)
         setResult(collectionType, operationName, executionTime)
     }
 
     private suspend fun removingInTheBeginningExecutionTime(collectionType: CollectionsName, size: Int) {
-        val operationName = OperationsName.REMOVING_IN_THE_BEGINNING
+        val operationName = CollectionOperations.REMOVING_IN_THE_BEGINNING
         val executionTime = getExecutionTime(collectionType, operationName, size)
         setResult(collectionType, operationName, executionTime)
     }
 
     private suspend fun removingInTheMiddleExecutionTime(collectionType: CollectionsName, size: Int) {
-        val operationName = OperationsName.REMOVING_IN_THE_MIDDLE
+        val operationName = CollectionOperations.REMOVING_IN_THE_MIDDLE
         val executionTime = getExecutionTime(collectionType, operationName, size)
         setResult(collectionType, operationName, executionTime)
     }
 
     private suspend fun removingInTheEndExecutionTime(collectionType: CollectionsName, size: Int) {
-        val operationName = OperationsName.REMOVING_IN_THE_END
+        val operationName = CollectionOperations.REMOVING_IN_THE_END
         val executionTime = getExecutionTime(collectionType, operationName, size)
         setResult(collectionType, operationName, executionTime)
     }
 
     private suspend fun searchByValueExecutionTime(collectionType: CollectionsName, size: Int) {
-        val operationName = OperationsName.SEARCH_BY_VALUE
+        val operationName = CollectionOperations.SEARCH_BY_VALUE
         val executionTime = getExecutionTime(collectionType, operationName, size)
         setResult(collectionType, operationName, executionTime)
     }
 
     private fun getExecutionTime(
         collectionType: CollectionsName,
-        operationName: OperationsName,
+        operationName: CollectionOperations,
         size: Int
     ): String {
         if (myCoroutineScope.isActive) {
@@ -167,13 +167,13 @@ class ListOperationsService {
             val startTime = System.currentTimeMillis()
             with(collection) {
                 when (operationName) {
-                    OperationsName.ADDING_IN_THE_BEGINNING -> add(BEGINNING_INDEX, DIGIT_TO_ADD)
-                    OperationsName.ADDING_IN_THE_MIDDLE -> add(middleIndex, DIGIT_TO_ADD)
-                    OperationsName.ADDING_IN_THE_END -> add(DIGIT_TO_ADD)
-                    OperationsName.REMOVING_IN_THE_BEGINNING -> removeAt(BEGINNING_INDEX)
-                    OperationsName.REMOVING_IN_THE_MIDDLE -> removeAt(middleIndex)
-                    OperationsName.REMOVING_IN_THE_END -> removeAt(collection.lastIndex)
-                    OperationsName.SEARCH_BY_VALUE -> find { it == REQUIRED_VALUE }
+                    CollectionOperations.ADDING_IN_THE_BEGINNING -> add(BEGINNING_INDEX, DIGIT_TO_ADD)
+                    CollectionOperations.ADDING_IN_THE_MIDDLE -> add(middleIndex, DIGIT_TO_ADD)
+                    CollectionOperations.ADDING_IN_THE_END -> add(DIGIT_TO_ADD)
+                    CollectionOperations.REMOVING_IN_THE_BEGINNING -> removeAt(BEGINNING_INDEX)
+                    CollectionOperations.REMOVING_IN_THE_MIDDLE -> removeAt(middleIndex)
+                    CollectionOperations.REMOVING_IN_THE_END -> removeAt(collection.lastIndex)
+                    CollectionOperations.SEARCH_BY_VALUE -> find { it == REQUIRED_VALUE }
                 }
             }
             val finishTime = System.currentTimeMillis()
@@ -183,7 +183,7 @@ class ListOperationsService {
 
     private suspend fun setResult(
         collectionsType: CollectionsName,
-        operationName: OperationsName,
+        operationName: CollectionOperations,
         executionTime: String
     ) {
         withContext(Dispatchers.Main) {
