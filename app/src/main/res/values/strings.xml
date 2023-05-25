@@ -8,4 +8,6 @@
     <string name="start">Start</string>
     <string name="elements_amount">Elements amount:</string>
     <string name="average_execution_time">%s %s %s ms</string>
+    <string name="collections_title">Collections</string>
+    <string name="maps_title">Maps</string>
 </resources>

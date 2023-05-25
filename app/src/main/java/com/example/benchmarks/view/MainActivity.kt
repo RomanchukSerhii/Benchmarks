@@ -35,11 +35,11 @@ class MainActivity : AppCompatActivity() {
                 when (position) {
                     0 -> {
                         tab.view.setBackgroundResource(R.drawable.tab_background_selector_left)
-                        tab.text = "Collections"
+                        tab.text = getString(R.string.collections_title)
                     }
                     1 -> {
                         tab.view.setBackgroundResource(R.drawable.tab_background_selector_right)
-                        tab.text = "Maps"
+                        tab.text = getString(R.string.maps_title)
                     }
                 }
             }.attach()
@@ -50,19 +50,6 @@ class MainActivity : AppCompatActivity() {
                     .inflate(R.layout.tab_title, null)
                 binding.tabLayout.getTabAt(i)?.customView = textView
             }
-
-//            tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-//                override fun onTabSelected(tab: TabLayout.Tab?) {
-//                    tab?.view?.setBackgroundResource(R.drawable.tab_background_selector)
-//                }
-//
-//                override fun onTabUnselected(tab: TabLayout.Tab?) {
-//                }
-//
-//                override fun onTabReselected(tab: TabLayout.Tab?) {
-//                }
-//
-//            })
         }
     }
 
