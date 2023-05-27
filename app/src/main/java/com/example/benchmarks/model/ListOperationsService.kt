@@ -1,14 +1,15 @@
 package com.example.benchmarks.model
 
-import com.example.benchmarks.model.enums.CollectionsName
+import com.example.benchmarks.ExecutingListener
+import com.example.benchmarks.ListOperationsListener
+import com.example.benchmarks.model.enums.CollectionsType
 import com.example.benchmarks.model.enums.CollectionOperations
 import kotlinx.coroutines.*
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.collections.ArrayList
 
-typealias ListOperationsListener = (operations: List<Operation>) -> Unit
-typealias ExecutingListener = (isExecuting: Boolean) -> Unit
+
 
 class ListOperationsService {
 
@@ -20,7 +21,7 @@ class ListOperationsService {
     private var mainJob: Job? = null
 
     init {
-        for (collection in CollectionsName.values()) {
+        for (collection in CollectionsType.values()) {
             for (operation in CollectionOperations.values()) {
                 operations.add(
                     Operation(
@@ -37,38 +38,36 @@ class ListOperationsService {
     suspend fun startOperations(size: Int) {
         startExecute()
         mainJob = myCoroutineScope.launch {
-//            if (isActive) {
-                val arrayListType = CollectionsName.ARRAY_LIST
-                val linkedListType = CollectionsName.LINKED_LIST
-                val fillListJob = myCoroutineScope.launch { fillCopyOnWriteArrayList(size) }
+            val arrayListType = CollectionsType.ARRAY_LIST
+            val linkedListType = CollectionsType.LINKED_LIST
+            val fillListJob = myCoroutineScope.launch { fillCopyOnWriteArrayList(size) }
 
-                launch { addingInTheBeginningExecutionTime(arrayListType, size) }
-                launch { addingInTheMiddleExecutionTime(arrayListType, size) }
-                launch { addingInTheEndExecutionTime(arrayListType, size) }
-                launch { removingInTheBeginningExecutionTime(arrayListType, size) }
-                launch { removingInTheMiddleExecutionTime(arrayListType, size) }
-                launch { removingInTheEndExecutionTime(arrayListType, size) }
-                launch { searchByValueExecutionTime(arrayListType, size) }
+            launch { addingInTheBeginningExecutionTime(arrayListType, size) }
+            launch { addingInTheMiddleExecutionTime(arrayListType, size) }
+            launch { addingInTheEndExecutionTime(arrayListType, size) }
+            launch { removingInTheBeginningExecutionTime(arrayListType, size) }
+            launch { removingInTheMiddleExecutionTime(arrayListType, size) }
+            launch { removingInTheEndExecutionTime(arrayListType, size) }
+            launch { searchByValueExecutionTime(arrayListType, size) }
 
-                launch { addingInTheBeginningExecutionTime(linkedListType, size) }
-                launch { addingInTheMiddleExecutionTime(linkedListType, size) }
-                launch { addingInTheEndExecutionTime(linkedListType, size) }
-                launch { removingInTheBeginningExecutionTime(linkedListType, size) }
-                launch { removingInTheMiddleExecutionTime(linkedListType, size) }
-                launch { removingInTheEndExecutionTime(linkedListType, size) }
-                launch { searchByValueExecutionTime(linkedListType, size) }
+            launch { addingInTheBeginningExecutionTime(linkedListType, size) }
+            launch { addingInTheMiddleExecutionTime(linkedListType, size) }
+            launch { addingInTheEndExecutionTime(linkedListType, size) }
+            launch { removingInTheBeginningExecutionTime(linkedListType, size) }
+            launch { removingInTheMiddleExecutionTime(linkedListType, size) }
+            launch { removingInTheEndExecutionTime(linkedListType, size) }
+            launch { searchByValueExecutionTime(linkedListType, size) }
 
-                fillListJob.join()
-                val collectionType = CollectionsName.COPY_ON_WRITE_ARRAY_LIST
-                launch { addingInTheBeginningExecutionTime(collectionType, size) }
-                launch { addingInTheMiddleExecutionTime(collectionType, size) }
-                launch { addingInTheEndExecutionTime(collectionType, size) }
-                launch { removingInTheBeginningExecutionTime(collectionType, size) }
-                launch { removingInTheMiddleExecutionTime(collectionType, size) }
-                launch { removingInTheEndExecutionTime(collectionType, size) }
-                launch { searchByValueExecutionTime(collectionType, size) }
-            }
-//        }
+            fillListJob.join()
+            val collectionType = CollectionsType.COPY_ON_WRITE_ARRAY_LIST
+            launch { addingInTheBeginningExecutionTime(collectionType, size) }
+            launch { addingInTheMiddleExecutionTime(collectionType, size) }
+            launch { addingInTheEndExecutionTime(collectionType, size) }
+            launch { removingInTheBeginningExecutionTime(collectionType, size) }
+            launch { removingInTheMiddleExecutionTime(collectionType, size) }
+            launch { removingInTheEndExecutionTime(collectionType, size) }
+            launch { searchByValueExecutionTime(collectionType, size) }
+        }
 
         mainJob?.invokeOnCompletion {
             notifyExecutingChanges(false)
@@ -92,7 +91,6 @@ class ListOperationsService {
             operations[index] = updateOperation
         }
         notifyListChanges()
-//        notifyExecutingChanges(true)
     }
 
     private fun fillCopyOnWriteArrayList(size: Int) {
@@ -124,58 +122,58 @@ class ListOperationsService {
         return list
     }
 
-    private suspend fun addingInTheBeginningExecutionTime(collectionType: CollectionsName, size: Int) {
+    private suspend fun addingInTheBeginningExecutionTime(collectionType: CollectionsType, size: Int) {
         val operationName = CollectionOperations.ADDING_IN_THE_BEGINNING
         val executionTime = getExecutionTime(collectionType, operationName, size)
         setResult( collectionType, operationName, executionTime )
     }
 
-    private suspend fun addingInTheMiddleExecutionTime(collectionType: CollectionsName, size: Int) {
+    private suspend fun addingInTheMiddleExecutionTime(collectionType: CollectionsType, size: Int) {
         val operationName = CollectionOperations.ADDING_IN_THE_MIDDLE
         val executionTime = getExecutionTime(collectionType, operationName, size)
         setResult(collectionType, operationName, executionTime)
     }
 
-    private suspend fun addingInTheEndExecutionTime(collectionType: CollectionsName, size: Int) {
+    private suspend fun addingInTheEndExecutionTime(collectionType: CollectionsType, size: Int) {
         val operationName = CollectionOperations.ADDING_IN_THE_END
         val executionTime = getExecutionTime(collectionType, operationName, size)
         setResult(collectionType, operationName, executionTime)
     }
 
-    private suspend fun removingInTheBeginningExecutionTime(collectionType: CollectionsName, size: Int) {
+    private suspend fun removingInTheBeginningExecutionTime(collectionType: CollectionsType, size: Int) {
         val operationName = CollectionOperations.REMOVING_IN_THE_BEGINNING
         val executionTime = getExecutionTime(collectionType, operationName, size)
         setResult(collectionType, operationName, executionTime)
     }
 
-    private suspend fun removingInTheMiddleExecutionTime(collectionType: CollectionsName, size: Int) {
+    private suspend fun removingInTheMiddleExecutionTime(collectionType: CollectionsType, size: Int) {
         val operationName = CollectionOperations.REMOVING_IN_THE_MIDDLE
         val executionTime = getExecutionTime(collectionType, operationName, size)
         setResult(collectionType, operationName, executionTime)
     }
 
-    private suspend fun removingInTheEndExecutionTime(collectionType: CollectionsName, size: Int) {
+    private suspend fun removingInTheEndExecutionTime(collectionType: CollectionsType, size: Int) {
         val operationName = CollectionOperations.REMOVING_IN_THE_END
         val executionTime = getExecutionTime(collectionType, operationName, size)
         setResult(collectionType, operationName, executionTime)
     }
 
-    private suspend fun searchByValueExecutionTime(collectionType: CollectionsName, size: Int) {
+    private suspend fun searchByValueExecutionTime(collectionType: CollectionsType, size: Int) {
         val operationName = CollectionOperations.SEARCH_BY_VALUE
         val executionTime = getExecutionTime(collectionType, operationName, size)
         setResult(collectionType, operationName, executionTime)
     }
 
     private fun getExecutionTime(
-        collectionType: CollectionsName,
+        collectionType: CollectionsType,
         operationName: CollectionOperations,
         size: Int
     ): String {
         if (mainJob?.isActive == true) {
             val collection = when (collectionType) {
-                CollectionsName.ARRAY_LIST -> fillArrayList(size)
-                CollectionsName.LINKED_LIST -> fillLinkedList(size)
-                CollectionsName.COPY_ON_WRITE_ARRAY_LIST -> {
+                CollectionsType.ARRAY_LIST -> fillArrayList(size)
+                CollectionsType.LINKED_LIST -> fillLinkedList(size)
+                CollectionsType.COPY_ON_WRITE_ARRAY_LIST -> {
                     copyOnWriteArrayList
                 }
             }
@@ -204,7 +202,7 @@ class ListOperationsService {
     }
 
     private suspend fun setResult(
-        collectionsType: CollectionsName,
+        collectionsType: CollectionsType,
         operationName: CollectionOperations,
         executionTime: String
     ) {

@@ -3,6 +3,7 @@ package com.example.benchmarks
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.benchmarks.model.Operation
 import com.example.benchmarks.viewmodel.CollectionsFragmentViewModel
 import com.example.benchmarks.viewmodel.MapsFragmentViewModel
 
@@ -24,3 +25,6 @@ class ViewModelFactory(
 }
 
 fun Fragment.factory() = ViewModelFactory(requireContext().applicationContext as App)
+typealias ListOperationsListener = (operations: List<Operation>) -> Unit
+typealias MapsOperationsListener = (operations: List<Operation>) -> Unit
+typealias ExecutingListener = (isExecuting: Boolean) -> Unit
