@@ -6,10 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import com.example.benchmarks.R
 import com.example.benchmarks.view.adapters.OperationListAdapter
 import com.example.benchmarks.databinding.FragmentCollectionsBinding
 import com.example.benchmarks.factory
 import com.example.benchmarks.viewmodel.CollectionsFragmentViewModel
+import com.example.benchmarks.viewmodel.Executing
+import com.example.benchmarks.viewmodel.Result
+import com.example.benchmarks.viewmodel.Error
 
 class CollectionsFragment : Fragment() {
 
@@ -40,16 +44,45 @@ class CollectionsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         observedViewModel()
         binding.recycler.adapter = operationAdapter
+        setButtonListener()
+    }
+
+    private fun setButtonListener() {
         binding.buttonStart.setOnClickListener {
             val size = binding.etTimesAmount.text.toString().toInt()
-            viewModel.startCollections(size)
+            viewModel.startExecution(size)
         }
     }
 
     private fun observedViewModel() {
-        viewModel.operations.observe(viewLifecycleOwner) {
-            operationAdapter.submitList(it)
+        with(binding) {
+            viewModel.state.observe(viewLifecycleOwner) { state ->
+                tilTimesAmount.error = null
+
+                when (state) {
+                    is Error -> {
+                        tilTimesAmount.error = "Is not correct number"
+                    }
+                    is Executing -> {
+                        if (state.isExecuting) {
+                            buttonStart.text = "Stop"
+                            buttonStart.setBackgroundResource(R.color.black)
+                            buttonStart.setOnClickListener {
+                                viewModel.stopExecution()
+                            }
+                        } else {
+                            buttonStart.text = "Start"
+                            buttonStart.setBackgroundResource(R.color.yellow)
+                            setButtonListener()
+                        }
+                    }
+                    is Result -> {
+                        operationAdapter.submitList(state.operations)
+                    }
+                }
+            }
         }
+
     }
 
     override fun onDestroyView() {

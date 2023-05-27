@@ -11,25 +11,41 @@ class CollectionsFragmentViewModel(
     private val listOperationsService: ListOperationsService
 ) : ViewModel() {
 
-    private val _operations = MutableLiveData<List<Operation>>()
-    val operations: LiveData<List<Operation>> = _operations
+//    private val _operations = MutableLiveData<List<Operation>>()
+//    val operations: LiveData<List<Operation>> = _operations
 
-    private val listener: ListOperationsListener = {
-        _operations.value = it
+    private val _state = MutableLiveData<State>()
+    val state: LiveData<State> = _state
+
+    private val operationsListener: ListOperationsListener = {
+        _state.value = Result(it)
+    }
+
+    private val executingListener: ExecutingListener = {
+        _state.postValue(Executing(it))
     }
 
     init {
         loadOperations()
     }
 
-    fun startCollections(size: Int) {
+    fun startExecution(size: Int) {
+        if (size < 1_000_000 || size > 10_000_000) {
+            _state.value = Error
+            return
+        }
         viewModelScope.launch {
             listOperationsService.startOperations(size)
         }
     }
 
+    fun stopExecution() {
+        listOperationsService.cancelCoroutine()
+    }
+
     private fun loadOperations() {
-        listOperationsService.addListListeners(listener)
+        listOperationsService.addListListeners(operationsListener)
+        listOperationsService.addExecutingListeners(executingListener)
     }
 
     override fun onCleared() {

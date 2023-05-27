@@ -8,13 +8,16 @@ import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.collections.ArrayList
 
 typealias ListOperationsListener = (operations: List<Operation>) -> Unit
+typealias ExecutingListener = (isExecuting: Boolean) -> Unit
 
 class ListOperationsService {
 
     private var operations = mutableListOf<Operation>()
-    private val listeners = mutableSetOf<ListOperationsListener>()
+    private val listOperationsListeners = mutableSetOf<ListOperationsListener>()
+    private val listExecutingListeners = mutableSetOf<ExecutingListener>()
     private var copyOnWriteArrayList = CopyOnWriteArrayList<Int>()
     private val myCoroutineScope = CoroutineScope(Dispatchers.Default)
+    private var mainJob: Job? = null
 
     init {
         for (collection in CollectionsName.values()) {
@@ -33,39 +36,42 @@ class ListOperationsService {
 
     suspend fun startOperations(size: Int) {
         startExecute()
-        val fillListJob = myCoroutineScope.launch { fillCopyOnWriteArrayList(size) }
+        mainJob = myCoroutineScope.launch {
+//            if (isActive) {
+                val arrayListType = CollectionsName.ARRAY_LIST
+                val linkedListType = CollectionsName.LINKED_LIST
+                val fillListJob = myCoroutineScope.launch { fillCopyOnWriteArrayList(size) }
 
-        myCoroutineScope.launch {
-            val arrayListType = CollectionsName.ARRAY_LIST
-            val linkedListType = CollectionsName.LINKED_LIST
+                launch { addingInTheBeginningExecutionTime(arrayListType, size) }
+                launch { addingInTheMiddleExecutionTime(arrayListType, size) }
+                launch { addingInTheEndExecutionTime(arrayListType, size) }
+                launch { removingInTheBeginningExecutionTime(arrayListType, size) }
+                launch { removingInTheMiddleExecutionTime(arrayListType, size) }
+                launch { removingInTheEndExecutionTime(arrayListType, size) }
+                launch { searchByValueExecutionTime(arrayListType, size) }
 
-            launch { addingInTheBeginningExecutionTime(arrayListType, size) }
-            launch { addingInTheMiddleExecutionTime(arrayListType, size) }
-            launch { addingInTheEndExecutionTime(arrayListType, size) }
-            launch { removingInTheBeginningExecutionTime(arrayListType, size) }
-            launch { removingInTheMiddleExecutionTime(arrayListType, size) }
-            launch { removingInTheEndExecutionTime(arrayListType, size) }
-            launch { searchByValueExecutionTime(arrayListType, size) }
+                launch { addingInTheBeginningExecutionTime(linkedListType, size) }
+                launch { addingInTheMiddleExecutionTime(linkedListType, size) }
+                launch { addingInTheEndExecutionTime(linkedListType, size) }
+                launch { removingInTheBeginningExecutionTime(linkedListType, size) }
+                launch { removingInTheMiddleExecutionTime(linkedListType, size) }
+                launch { removingInTheEndExecutionTime(linkedListType, size) }
+                launch { searchByValueExecutionTime(linkedListType, size) }
 
-            launch { addingInTheBeginningExecutionTime(linkedListType, size) }
-            launch { addingInTheMiddleExecutionTime(linkedListType, size) }
-            launch { addingInTheEndExecutionTime(linkedListType, size) }
-            launch { removingInTheBeginningExecutionTime(linkedListType, size) }
-            launch { removingInTheMiddleExecutionTime(linkedListType, size) }
-            launch { removingInTheEndExecutionTime(linkedListType, size) }
-            launch { searchByValueExecutionTime(linkedListType, size) }
-        }
+                fillListJob.join()
+                val collectionType = CollectionsName.COPY_ON_WRITE_ARRAY_LIST
+                launch { addingInTheBeginningExecutionTime(collectionType, size) }
+                launch { addingInTheMiddleExecutionTime(collectionType, size) }
+                launch { addingInTheEndExecutionTime(collectionType, size) }
+                launch { removingInTheBeginningExecutionTime(collectionType, size) }
+                launch { removingInTheMiddleExecutionTime(collectionType, size) }
+                launch { removingInTheEndExecutionTime(collectionType, size) }
+                launch { searchByValueExecutionTime(collectionType, size) }
+            }
+//        }
 
-        fillListJob.join()
-        myCoroutineScope.launch {
-            val collectionType = CollectionsName.COPY_ON_WRITE_ARRAY_LIST
-            launch { addingInTheBeginningExecutionTime(collectionType, size) }
-            launch { addingInTheMiddleExecutionTime(collectionType, size) }
-            launch { addingInTheEndExecutionTime(collectionType, size) }
-            launch { removingInTheBeginningExecutionTime(collectionType, size) }
-            launch { removingInTheMiddleExecutionTime(collectionType, size) }
-            launch { removingInTheEndExecutionTime(collectionType, size) }
-            launch { searchByValueExecutionTime(collectionType, size) }
+        mainJob?.invokeOnCompletion {
+            notifyExecutingChanges(false)
         }
     }
 
@@ -76,6 +82,17 @@ class ListOperationsService {
             operations[index] = updateOperation
         }
         notifyListChanges()
+        notifyExecutingChanges(true)
+    }
+
+    private fun stopExecute() {
+        updateList()
+        for (index in 0 until operations.size) {
+            val updateOperation = operations[index].copy(isExecuted = false)
+            operations[index] = updateOperation
+        }
+        notifyListChanges()
+//        notifyExecutingChanges(true)
     }
 
     private fun fillCopyOnWriteArrayList(size: Int) {
@@ -154,7 +171,7 @@ class ListOperationsService {
         operationName: CollectionOperations,
         size: Int
     ): String {
-        if (myCoroutineScope.isActive) {
+        if (mainJob?.isActive == true) {
             val collection = when (collectionType) {
                 CollectionsName.ARRAY_LIST -> fillArrayList(size)
                 CollectionsName.LINKED_LIST -> fillLinkedList(size)
@@ -167,7 +184,10 @@ class ListOperationsService {
             val startTime = System.currentTimeMillis()
             with(collection) {
                 when (operationName) {
-                    CollectionOperations.ADDING_IN_THE_BEGINNING -> add(BEGINNING_INDEX, DIGIT_TO_ADD)
+                    CollectionOperations.ADDING_IN_THE_BEGINNING -> add(
+                        BEGINNING_INDEX,
+                        DIGIT_TO_ADD
+                    )
                     CollectionOperations.ADDING_IN_THE_MIDDLE -> add(middleIndex, DIGIT_TO_ADD)
                     CollectionOperations.ADDING_IN_THE_END -> add(DIGIT_TO_ADD)
                     CollectionOperations.REMOVING_IN_THE_BEGINNING -> removeAt(BEGINNING_INDEX)
@@ -178,7 +198,9 @@ class ListOperationsService {
             }
             val finishTime = System.currentTimeMillis()
             return (finishTime - startTime).toString()
-        } else return "0"
+        } else {
+            throw CancellationException()
+        }
     }
 
     private suspend fun setResult(
@@ -204,23 +226,37 @@ class ListOperationsService {
     }
 
     fun cancelCoroutine() {
-        myCoroutineScope.cancel()
+        stopExecute()
+        mainJob?.cancel()
     }
     fun addListListeners(listener: ListOperationsListener) {
-        listeners.add(listener)
+        listOperationsListeners.add(listener)
         listener.invoke(operations)
     }
 
+    fun addExecutingListeners(listener: ExecutingListener) {
+        listExecutingListeners.add(listener)
+        listener.invoke(false)
+    }
+
     fun removeListListeners(listener: ListOperationsListener) {
-        listeners.remove(listener)
+        listOperationsListeners.remove(listener)
+    }
+
+    fun removeExecutingListeners(listener: ExecutingListener) {
+        listExecutingListeners.remove(listener)
     }
 
     private fun updateList() {
         operations = ArrayList(operations)
     }
 
+    private fun notifyExecutingChanges(isExecuting: Boolean) {
+        listExecutingListeners.forEach { it.invoke(isExecuting) }
+    }
+
     private fun notifyListChanges() {
-        listeners.forEach { it.invoke(operations) }
+        listOperationsListeners.forEach { it.invoke(operations) }
     }
 
     companion object {
