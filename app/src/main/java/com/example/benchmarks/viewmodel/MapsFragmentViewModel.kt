@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.benchmarks.model.MapsOperationsListener
+import com.example.benchmarks.MapsOperationsListener
 import com.example.benchmarks.model.MapsOperationsService
 import com.example.benchmarks.model.Operation
 import kotlinx.coroutines.launch

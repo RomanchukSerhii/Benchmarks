@@ -3,11 +3,12 @@ package com.example.benchmarks.model
 
 import com.example.benchmarks.ExecutingListener
 import com.example.benchmarks.MapsOperationsListener
-import com.example.benchmarks.model.enums.CollectionOperations
 import com.example.benchmarks.model.enums.MapsType
 import com.example.benchmarks.model.enums.MapsOperations
 import kotlinx.coroutines.*
-import java.util.TreeMap
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class MapsOperationsService {
 
@@ -35,7 +36,7 @@ class MapsOperationsService {
     fun startOperations(size: Int) {
         startExecute()
         mainJob = myCoroutineScope.launch {
-            val treeMapType = MapsType.TREE_MAP
+            val treeMapType = MapsType.SORTED_MAP
             val hashMapType = MapsType.HASH_MAP
 
             launch { addingNewExecutionTime(treeMapType, size) }
@@ -54,16 +55,17 @@ class MapsOperationsService {
 
     private suspend fun addingNewExecutionTime(mapsType: MapsType, size: Int) {
         val operationName = MapsOperations.ADDING_NEW
-        val executionTime = getExecutionTime(mapsType, operationName, size)
-        setResult(mapsType, operationName, executionTime)
+        getExecutionTime(mapsType, operationName, size)
     }
 
     private suspend fun searchByKeyExecutionTime(mapsType: MapsType, size: Int) {
-
+        val operationName = MapsOperations.SEARCH_BY_KEY
+        getExecutionTime(mapsType, operationName, size)
     }
 
     private suspend fun removingExecutionTime(mapsType: MapsType, size: Int) {
-
+        val operationName = MapsOperations.REMOVING
+        getExecutionTime(mapsType, operationName, size)
     }
 
     private fun startExecute() {
@@ -85,27 +87,28 @@ class MapsOperationsService {
         notifyListChanges()
     }
 
-    private fun getExecutionTime(
+    private suspend fun getExecutionTime(
         mapsType: MapsType,
         operationName: MapsOperations,
         size: Int
-    ): String {
+    ) {
         if (mainJob?.isActive == true) {
             val collection = when (mapsType) {
-                MapsType.TREE_MAP -> fillTreeMap(size)
+                MapsType.SORTED_MAP -> fillSortedMap(size)
                 MapsType.HASH_MAP -> fillHashMap(size)
             }
 
             val startTime = System.currentTimeMillis()
             with(collection) {
                 when (operationName) {
-                    MapsOperations.ADDING_NEW -> TODO()
-                    MapsOperations.SEARCH_BY_KEY -> TODO()
-                    MapsOperations.REMOVING -> TODO()
+                    MapsOperations.ADDING_NEW -> put(NEW_KEY, NEW_VALUE)
+                    MapsOperations.SEARCH_BY_KEY -> get(DESIRED_KEY)
+                    MapsOperations.REMOVING -> remove(DESIRED_KEY)
                 }
             }
             val finishTime = System.currentTimeMillis()
-            return (finishTime - startTime).toString()
+            val executionTime = (finishTime - startTime).toString()
+            setResult(mapsType, operationName, executionTime)
         } else {
             throw CancellationException()
         }
@@ -133,12 +136,20 @@ class MapsOperationsService {
         }
     }
 
-    private fun fillTreeMap(size: Int): TreeMap<String, Int> {
-        TODO()
+    private fun fillSortedMap(size: Int): SortedMap<String, Int> {
+        val treeMap = sortedMapOf<String, Int>()
+        for (i in 0..size) {
+            treeMap["key: i"] = i
+        }
+        return treeMap
     }
 
     private fun fillHashMap(size: Int): HashMap<String, Int> {
-        TODO()
+        val hashMap = hashMapOf<String, Int>()
+        for (i in 0..size) {
+            hashMap["key: i"] = i
+        }
+        return hashMap
     }
 
     fun cancelCoroutine() {
@@ -177,5 +188,8 @@ class MapsOperationsService {
 
     companion object {
         private const val UNDEFINED = -1
+        private const val NEW_KEY = "new"
+        private const val NEW_VALUE = 13
+        private const val DESIRED_KEY = "key: 500000"
     }
 }

@@ -124,51 +124,44 @@ class ListOperationsService {
 
     private suspend fun addingInTheBeginningExecutionTime(collectionType: CollectionsType, size: Int) {
         val operationName = CollectionOperations.ADDING_IN_THE_BEGINNING
-        val executionTime = getExecutionTime(collectionType, operationName, size)
-        setResult( collectionType, operationName, executionTime )
+        getExecutionTime(collectionType, operationName, size)
     }
 
     private suspend fun addingInTheMiddleExecutionTime(collectionType: CollectionsType, size: Int) {
         val operationName = CollectionOperations.ADDING_IN_THE_MIDDLE
-        val executionTime = getExecutionTime(collectionType, operationName, size)
-        setResult(collectionType, operationName, executionTime)
+        getExecutionTime(collectionType, operationName, size)
     }
 
     private suspend fun addingInTheEndExecutionTime(collectionType: CollectionsType, size: Int) {
         val operationName = CollectionOperations.ADDING_IN_THE_END
-        val executionTime = getExecutionTime(collectionType, operationName, size)
-        setResult(collectionType, operationName, executionTime)
+        getExecutionTime(collectionType, operationName, size)
     }
 
     private suspend fun removingInTheBeginningExecutionTime(collectionType: CollectionsType, size: Int) {
         val operationName = CollectionOperations.REMOVING_IN_THE_BEGINNING
-        val executionTime = getExecutionTime(collectionType, operationName, size)
-        setResult(collectionType, operationName, executionTime)
+        getExecutionTime(collectionType, operationName, size)
     }
 
     private suspend fun removingInTheMiddleExecutionTime(collectionType: CollectionsType, size: Int) {
         val operationName = CollectionOperations.REMOVING_IN_THE_MIDDLE
-        val executionTime = getExecutionTime(collectionType, operationName, size)
-        setResult(collectionType, operationName, executionTime)
+        getExecutionTime(collectionType, operationName, size)
     }
 
     private suspend fun removingInTheEndExecutionTime(collectionType: CollectionsType, size: Int) {
         val operationName = CollectionOperations.REMOVING_IN_THE_END
-        val executionTime = getExecutionTime(collectionType, operationName, size)
-        setResult(collectionType, operationName, executionTime)
+        getExecutionTime(collectionType, operationName, size)
     }
 
     private suspend fun searchByValueExecutionTime(collectionType: CollectionsType, size: Int) {
         val operationName = CollectionOperations.SEARCH_BY_VALUE
-        val executionTime = getExecutionTime(collectionType, operationName, size)
-        setResult(collectionType, operationName, executionTime)
+        getExecutionTime(collectionType, operationName, size)
     }
 
-    private fun getExecutionTime(
+    private suspend fun getExecutionTime(
         collectionType: CollectionsType,
         operationName: CollectionOperations,
         size: Int
-    ): String {
+    ) {
         if (mainJob?.isActive == true) {
             val collection = when (collectionType) {
                 CollectionsType.ARRAY_LIST -> fillArrayList(size)
@@ -195,7 +188,8 @@ class ListOperationsService {
                 }
             }
             val finishTime = System.currentTimeMillis()
-            return (finishTime - startTime).toString()
+            val executionTime = (finishTime - startTime).toString()
+            setResult(collectionType, operationName, executionTime)
         } else {
             throw CancellationException()
         }
