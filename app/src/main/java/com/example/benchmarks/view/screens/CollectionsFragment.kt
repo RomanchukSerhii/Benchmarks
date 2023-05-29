@@ -61,18 +61,18 @@ class CollectionsFragment : Fragment() {
 
                 when (state) {
                     is Error -> {
-                        tilTimesAmount.error = "Is not correct number"
+                        tilTimesAmount.error = "Error. You need enter elements count."
                     }
                     is Executing -> {
                         if (state.isExecuting) {
-                            buttonStart.text = "Stop"
-                            buttonStart.setBackgroundResource(R.color.black)
+                            buttonStart.text = getString(R.string.stop)
+                            buttonStart.setBackgroundResource(R.drawable.button_stop_background)
                             buttonStart.setOnClickListener {
                                 viewModel.stopExecution()
                             }
                         } else {
-                            buttonStart.text = "Start"
-                            buttonStart.setBackgroundResource(R.color.yellow)
+                            buttonStart.text = getString(R.string.start)
+                            buttonStart.setBackgroundResource(R.drawable.button_start_background)
                             setButtonListener()
                         }
                     }
