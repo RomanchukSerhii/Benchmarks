@@ -39,16 +39,13 @@ class CollectionsFragmentViewModel(
     }
 
     fun stopExecution() {
-        listOperationsService.cancelCoroutine()
+        viewModelScope.launch {
+            listOperationsService.cancelCoroutine()
+        }
     }
 
     private fun loadOperations() {
         listOperationsService.addListListeners(operationsListener)
         listOperationsService.addExecutingListeners(executingListener)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        listOperationsService.cancelCoroutine()
     }
 }

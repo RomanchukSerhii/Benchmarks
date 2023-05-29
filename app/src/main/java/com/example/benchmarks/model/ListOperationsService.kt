@@ -68,10 +68,6 @@ class ListOperationsService {
             launch { removingInTheEndExecutionTime(collectionType, size) }
             launch { searchByValueExecutionTime(collectionType, size) }
         }
-
-        mainJob?.invokeOnCompletion {
-            notifyExecutingChanges(false)
-        }
     }
 
     private fun startExecute() {
@@ -172,6 +168,7 @@ class ListOperationsService {
             }
 
             val middleIndex = collection.size / 2
+            val lastIndex = collection.size - 2
             val startTime = System.currentTimeMillis()
             with(collection) {
                 when (operationName) {
@@ -183,7 +180,7 @@ class ListOperationsService {
                     CollectionOperations.ADDING_IN_THE_END -> add(DIGIT_TO_ADD)
                     CollectionOperations.REMOVING_IN_THE_BEGINNING -> removeAt(BEGINNING_INDEX)
                     CollectionOperations.REMOVING_IN_THE_MIDDLE -> removeAt(middleIndex)
-                    CollectionOperations.REMOVING_IN_THE_END -> removeAt(collection.lastIndex)
+                    CollectionOperations.REMOVING_IN_THE_END -> removeAt(lastIndex)
                     CollectionOperations.SEARCH_BY_VALUE -> find { it == REQUIRED_VALUE }
                 }
             }
@@ -217,9 +214,11 @@ class ListOperationsService {
         }
     }
 
-    fun cancelCoroutine() {
-        stopExecute()
+    suspend fun cancelCoroutine() {
         mainJob?.cancel()
+        notifyExecutingChanges(false)
+        mainJob?.join()
+        stopExecute()
     }
     fun addListListeners(listener: ListOperationsListener) {
         listOperationsListeners.add(listener)
