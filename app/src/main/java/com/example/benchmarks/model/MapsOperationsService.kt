@@ -152,9 +152,11 @@ class MapsOperationsService {
         return hashMap
     }
 
-    fun cancelCoroutine() {
-        stopExecute()
+    suspend fun cancelCoroutine() {
         mainJob?.cancel()
+        notifyExecutingChanges(false)
+        mainJob?.join()
+        stopExecute()
     }
     fun addListListeners(listener: MapsOperationsListener) {
         mapsOperationsListeners.add(listener)

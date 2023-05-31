@@ -68,6 +68,10 @@ class ListOperationsService {
             launch { removingInTheEndExecutionTime(collectionType, size) }
             launch { searchByValueExecutionTime(collectionType, size) }
         }
+
+        mainJob?.invokeOnCompletion {
+            notifyExecutingChanges(false)
+        }
     }
 
     private fun startExecute() {
@@ -186,6 +190,9 @@ class ListOperationsService {
             }
             val finishTime = System.currentTimeMillis()
             val executionTime = (finishTime - startTime).toString()
+            if (collectionType != CollectionsType.COPY_ON_WRITE_ARRAY_LIST) {
+                collection.clear()
+            }
             setResult(collectionType, operationName, executionTime)
         } else {
             throw CancellationException()

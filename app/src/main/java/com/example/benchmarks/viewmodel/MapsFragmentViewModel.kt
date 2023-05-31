@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.benchmarks.ExecutingListener
 import com.example.benchmarks.MapsOperationsListener
 import com.example.benchmarks.model.MapsOperationsService
 import com.example.benchmarks.model.Operation
@@ -13,29 +14,39 @@ class MapsFragmentViewModel(
     private val mapsOperationsService: MapsOperationsService
 ): ViewModel() {
 
-    private val _operations = MutableLiveData<List<Operation>>()
-    val operations: LiveData<List<Operation>> = _operations
+    private val _state = MutableLiveData<State>()
+    val state: LiveData<State> = _state
 
-    private val listener: MapsOperationsListener = {
-        _operations.value = it
+    private val operationsListener: MapsOperationsListener = {
+        _state.value = Result(it)
+    }
+
+    private val executingListener: ExecutingListener = {
+        _state.postValue(Executing(it))
     }
 
     init {
         loadOperations()
     }
 
-    fun startCollections(size: Int) {
+    fun startExecution(size: Int) {
+        if (size < 1_000_000 || size > 10_000_000) {
+            _state.value = Error
+            return
+        }
         viewModelScope.launch {
             mapsOperationsService.startOperations(size)
         }
     }
 
-    private fun loadOperations() {
-        mapsOperationsService.addListListeners(listener)
+    fun stopExecution() {
+        viewModelScope.launch {
+            mapsOperationsService.cancelCoroutine()
+        }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        mapsOperationsService.cancelCoroutine()
+    private fun loadOperations() {
+        mapsOperationsService.addListListeners(operationsListener)
+        mapsOperationsService.addExecutingListeners(executingListener)
     }
 }
