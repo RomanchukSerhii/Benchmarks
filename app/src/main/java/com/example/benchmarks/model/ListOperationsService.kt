@@ -18,7 +18,7 @@ class ListOperationsService {
     private val myCoroutineScope = CoroutineScope(Dispatchers.Default)
     private val arrayListLock = Any()
     private val linkedListLock = Any()
-    private val arrayList = ArrayList<Int>()
+    private val arrayList = ArrayList<Int>(10000000)
     private var copyOnWriteArrayList = CopyOnWriteArrayList<Int>()
     private var linkedList = LinkedList<Int>()
     private var mainJob: Job? = null
@@ -43,6 +43,7 @@ class ListOperationsService {
         mainJob = myCoroutineScope.launch {
             val arrayListType = CollectionsType.ARRAY_LIST
             val linkedListType = CollectionsType.LINKED_LIST
+            val collectionType = CollectionsType.COPY_ON_WRITE_ARRAY_LIST
             val fillListsJob = myCoroutineScope.launch { fillLists(size) }
 
             fillListsJob.join()
@@ -55,7 +56,6 @@ class ListOperationsService {
             launch { removingInTheEndExecutionTime(arrayListType) }
             launch { searchByValueExecutionTime(arrayListType) }
 
-            val collectionType = CollectionsType.COPY_ON_WRITE_ARRAY_LIST
             launch { addingInTheBeginningExecutionTime(collectionType) }
             launch { addingInTheMiddleExecutionTime(collectionType) }
             launch { addingInTheEndExecutionTime(collectionType) }

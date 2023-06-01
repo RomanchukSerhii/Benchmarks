@@ -1,6 +1,7 @@
 package com.example.benchmarks.model
 
 
+import android.util.Log
 import com.example.benchmarks.ExecutingListener
 import com.example.benchmarks.MapsOperationsListener
 import com.example.benchmarks.model.enums.MapsType
@@ -16,6 +17,10 @@ class MapsOperationsService {
     private val mapsOperationsListeners = mutableSetOf<MapsOperationsListener>()
     private val listExecutingListeners = mutableSetOf<ExecutingListener>()
     private val myCoroutineScope = CoroutineScope(Dispatchers.Default)
+    private val hashMapLock = Any()
+    private val sortedMapLock = Any()
+    private var hashMap = HashMap<Int, Int>(10000000)
+    private var treeMap = TreeMap<Int, Int>()
     private var mainJob: Job? = null
 
     init {
@@ -33,39 +38,42 @@ class MapsOperationsService {
         }
     }
 
-    fun startOperations(size: Int) {
+    suspend fun startOperations(size: Int) {
         startExecute()
+
         mainJob = myCoroutineScope.launch {
-            val treeMapType = MapsType.SORTED_MAP
+            val sortedMapType = MapsType.SORTED_MAP
             val hashMapType = MapsType.HASH_MAP
+            fillMaps(size)
+            launch { addingNewExecutionTime(sortedMapType) }
+            launch { searchByKeyExecutionTime(sortedMapType) }
+            launch { removingExecutionTime(sortedMapType) }
 
-            launch { addingNewExecutionTime(treeMapType, size) }
-            launch { searchByKeyExecutionTime(treeMapType, size) }
-            launch { removingExecutionTime(treeMapType, size) }
-
-            launch { addingNewExecutionTime(hashMapType, size) }
-            launch { searchByKeyExecutionTime(hashMapType, size) }
-            launch { removingExecutionTime(hashMapType, size) }
+            launch { addingNewExecutionTime(hashMapType) }
+            launch { searchByKeyExecutionTime(hashMapType) }
+            launch { removingExecutionTime(hashMapType) }
         }
 
         mainJob?.invokeOnCompletion {
             notifyExecutingChanges(false)
+            hashMap.clear()
+            treeMap.clear()
         }
     }
 
-    private suspend fun addingNewExecutionTime(mapsType: MapsType, size: Int) {
+    private suspend fun addingNewExecutionTime(mapsType: MapsType) {
         val operationName = MapsOperations.ADDING_NEW
-        getExecutionTime(mapsType, operationName, size)
+        getExecutionTime(mapsType, operationName)
     }
 
-    private suspend fun searchByKeyExecutionTime(mapsType: MapsType, size: Int) {
+    private suspend fun searchByKeyExecutionTime(mapsType: MapsType) {
         val operationName = MapsOperations.SEARCH_BY_KEY
-        getExecutionTime(mapsType, operationName, size)
+        getExecutionTime(mapsType, operationName)
     }
 
-    private suspend fun removingExecutionTime(mapsType: MapsType, size: Int) {
+    private suspend fun removingExecutionTime(mapsType: MapsType) {
         val operationName = MapsOperations.REMOVING
-        getExecutionTime(mapsType, operationName, size)
+        getExecutionTime(mapsType, operationName)
     }
 
     private fun startExecute() {
@@ -89,26 +97,49 @@ class MapsOperationsService {
 
     private suspend fun getExecutionTime(
         mapsType: MapsType,
-        operationName: MapsOperations,
-        size: Int
+        operationName: MapsOperations
     ) {
-        if (mainJob?.isActive == true) {
-            val collection = when (mapsType) {
-                MapsType.SORTED_MAP -> fillSortedMap(size)
-                MapsType.HASH_MAP -> fillHashMap(size)
-            }
+        val executionTime = when (mapsType) {
+            MapsType.SORTED_MAP -> getSortedMapExecutionTime(operationName)
+            MapsType.HASH_MAP -> getHashMapExecutionTime(operationName)
+        }
+        setResult(mapsType, operationName, executionTime)
+    }
 
-            val startTime = System.currentTimeMillis()
-            with(collection) {
-                when (operationName) {
-                    MapsOperations.ADDING_NEW -> put(NEW_KEY, NEW_VALUE)
-                    MapsOperations.SEARCH_BY_KEY -> get(DESIRED_KEY)
-                    MapsOperations.REMOVING -> remove(DESIRED_KEY)
+    private fun getSortedMapExecutionTime(operationName: MapsOperations): String {
+        if (mainJob?.isActive == true) {
+            synchronized(sortedMapLock) {
+                val startTime = System.currentTimeMillis()
+                with(treeMap) {
+                    when (operationName) {
+                        MapsOperations.ADDING_NEW -> put(NEW_KEY, NEW_VALUE)
+                        MapsOperations.SEARCH_BY_KEY -> get(DESIRED_KEY)
+                        MapsOperations.REMOVING -> remove(DESIRED_KEY)
+                    }
                 }
+                val finishTime = System.currentTimeMillis()
+                return (finishTime - startTime).toString()
             }
-            val finishTime = System.currentTimeMillis()
-            val executionTime = (finishTime - startTime).toString()
-            setResult(mapsType, operationName, executionTime)
+        } else {
+            throw CancellationException()
+        }
+    }
+
+    private fun getHashMapExecutionTime(operationName: MapsOperations): String {
+        if (mainJob?.isActive == true) {
+            synchronized(hashMapLock) {
+                val startTime = System.currentTimeMillis()
+                with(hashMap) {
+                    when (operationName) {
+                        MapsOperations.ADDING_NEW -> put(NEW_KEY, NEW_VALUE)
+                        MapsOperations.SEARCH_BY_KEY -> get(DESIRED_KEY)
+                        MapsOperations.REMOVING -> remove(DESIRED_KEY)
+                    }
+                }
+                val finishTime = System.currentTimeMillis()
+                Log.d("AAA", "hash work - $operationName, size - ${hashMap.size}")
+                return (finishTime - startTime).toString()
+            }
         } else {
             throw CancellationException()
         }
@@ -136,25 +167,17 @@ class MapsOperationsService {
         }
     }
 
-    private fun fillSortedMap(size: Int): SortedMap<String, Int> {
-        val treeMap = sortedMapOf<String, Int>()
-        for (i in 0..size) {
-            treeMap["key: i"] = i
+    private fun fillMaps(size: Int) {
+        for (i in 0 until size) {
+            hashMap[i] = i
         }
-        return treeMap
-    }
-
-    private fun fillHashMap(size: Int): HashMap<String, Int> {
-        val hashMap = hashMapOf<String, Int>()
-        for (i in 0..size) {
-            hashMap["key: i"] = i
-        }
-        return hashMap
+        Log.d("AAA", "Hash - ${hashMap.size}")
+        treeMap = TreeMap(hashMap)
+        Log.d("AAA", "Sorted - ${treeMap.size}")
     }
 
     suspend fun cancelCoroutine() {
         mainJob?.cancel()
-        notifyExecutingChanges(false)
         mainJob?.join()
         stopExecute()
     }
@@ -190,8 +213,8 @@ class MapsOperationsService {
 
     companion object {
         private const val UNDEFINED = -1
-        private const val NEW_KEY = "new"
+        private const val NEW_KEY = 11000000
         private const val NEW_VALUE = 13
-        private const val DESIRED_KEY = "key: 500000"
+        private const val DESIRED_KEY = 500000
     }
 }
