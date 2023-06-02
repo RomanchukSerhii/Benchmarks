@@ -1,6 +1,6 @@
 package com.example.benchmarks.model.enums
 
 enum class MapsType(val mapsName: String) {
-    SORTED_MAP("SortedMap"),
+    TREE_MAP("TreeMap"),
     HASH_MAP("HashMap")
 }

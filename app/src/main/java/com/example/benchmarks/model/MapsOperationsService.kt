@@ -1,7 +1,5 @@
 package com.example.benchmarks.model
 
-
-import android.util.Log
 import com.example.benchmarks.ExecutingListener
 import com.example.benchmarks.MapsOperationsListener
 import com.example.benchmarks.model.enums.MapsType
@@ -42,16 +40,35 @@ class MapsOperationsService {
         startExecute()
 
         mainJob = myCoroutineScope.launch {
-            val sortedMapType = MapsType.SORTED_MAP
+            val sortedMapType = MapsType.TREE_MAP
             val hashMapType = MapsType.HASH_MAP
-            fillMaps(size)
-            launch { addingNewExecutionTime(sortedMapType) }
-            launch { searchByKeyExecutionTime(sortedMapType) }
-            launch { removingExecutionTime(sortedMapType) }
 
-            launch { addingNewExecutionTime(hashMapType) }
-            launch { searchByKeyExecutionTime(hashMapType) }
-            launch { removingExecutionTime(hashMapType) }
+            val hashJob = launch {
+                fillHashMap(size)
+                launch { addingNewExecutionTime(hashMapType) }
+                launch { searchByKeyExecutionTime(hashMapType) }
+                launch { removingExecutionTime(hashMapType) }
+            }
+
+            val treeJob = launch {
+                if (size > 8_000_000) {
+                    fillTreeMap(size = 1_000_000)
+                    hashJob.join()
+                    fillTreeMap(1_000_000, size)
+                } else {
+                    fillTreeMap(size = size)
+                }
+                launch { addingNewExecutionTime(sortedMapType) }
+                launch { searchByKeyExecutionTime(sortedMapType) }
+                launch { removingExecutionTime(sortedMapType) }
+            }
+
+            hashJob.invokeOnCompletion {
+                hashMap.clear()
+            }
+            treeJob.invokeOnCompletion {
+                treeMap.clear()
+            }
         }
 
         mainJob?.invokeOnCompletion {
@@ -100,7 +117,7 @@ class MapsOperationsService {
         operationName: MapsOperations
     ) {
         val executionTime = when (mapsType) {
-            MapsType.SORTED_MAP -> getSortedMapExecutionTime(operationName)
+            MapsType.TREE_MAP -> getSortedMapExecutionTime(operationName)
             MapsType.HASH_MAP -> getHashMapExecutionTime(operationName)
         }
         setResult(mapsType, operationName, executionTime)
@@ -137,7 +154,6 @@ class MapsOperationsService {
                     }
                 }
                 val finishTime = System.currentTimeMillis()
-                Log.d("AAA", "hash work - $operationName, size - ${hashMap.size}")
                 return (finishTime - startTime).toString()
             }
         } else {
@@ -167,13 +183,20 @@ class MapsOperationsService {
         }
     }
 
-    private fun fillMaps(size: Int) {
+    private fun fillHashMap(size: Int) {
         for (i in 0 until size) {
-            hashMap[i] = i
+            if (mainJob?.isActive == true) {
+                hashMap[i] = i
+            }
         }
-        Log.d("AAA", "Hash - ${hashMap.size}")
-        treeMap = TreeMap(hashMap)
-        Log.d("AAA", "Sorted - ${treeMap.size}")
+    }
+    
+    private fun fillTreeMap(startIndex: Int = 0, size: Int) {
+        for (i in startIndex until size) {
+            if (mainJob?.isActive == true) {
+                treeMap[i] = i
+            }
+        }
     }
 
     suspend fun cancelCoroutine() {
