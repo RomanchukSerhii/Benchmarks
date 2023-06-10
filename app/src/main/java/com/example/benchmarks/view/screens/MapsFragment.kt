@@ -10,6 +10,7 @@ import com.example.benchmarks.R
 import com.example.benchmarks.databinding.FragmentMapsBinding
 import com.example.benchmarks.factory
 import com.example.benchmarks.view.adapters.OperationListAdapter
+import com.example.benchmarks.viewmodel.CollectionsSize
 import com.example.benchmarks.viewmodel.Error
 import com.example.benchmarks.viewmodel.Executing
 import com.example.benchmarks.viewmodel.MapsFragmentViewModel
@@ -77,6 +78,9 @@ class MapsFragment : Fragment() {
                     }
                     is Result -> {
                         operationAdapter.submitList(state.operations)
+                    }
+                    is CollectionsSize -> {
+                        etTimesAmount.setText(state.size.toString())
                     }
                 }
             }

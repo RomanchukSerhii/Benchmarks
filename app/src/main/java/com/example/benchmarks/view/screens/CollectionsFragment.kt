@@ -11,6 +11,7 @@ import com.example.benchmarks.view.adapters.OperationListAdapter
 import com.example.benchmarks.databinding.FragmentCollectionsBinding
 import com.example.benchmarks.factory
 import com.example.benchmarks.viewmodel.CollectionsFragmentViewModel
+import com.example.benchmarks.viewmodel.CollectionsSize
 import com.example.benchmarks.viewmodel.Executing
 import com.example.benchmarks.viewmodel.Result
 import com.example.benchmarks.viewmodel.Error
@@ -78,6 +79,9 @@ class CollectionsFragment : Fragment() {
                     }
                     is Result -> {
                         operationAdapter.submitList(state.operations)
+                    }
+                    is CollectionsSize -> {
+                        etTimesAmount.setText(state.size.toString())
                     }
                 }
             }
