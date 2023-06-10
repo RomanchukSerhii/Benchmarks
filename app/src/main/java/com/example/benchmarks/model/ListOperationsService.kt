@@ -44,9 +44,8 @@ class ListOperationsService {
             val arrayListType = CollectionsType.ARRAY_LIST
             val linkedListType = CollectionsType.LINKED_LIST
             val collectionType = CollectionsType.COPY_ON_WRITE_ARRAY_LIST
-            val fillListsJob = myCoroutineScope.launch { fillLists(size) }
 
-            fillListsJob.join()
+            fillLists(size)
             Log.d(TAG, "Array - ${arrayList.size}")
             launch { addingInTheBeginningExecutionTime(arrayListType) }
             launch { addingInTheMiddleExecutionTime(arrayListType) }
@@ -78,6 +77,7 @@ class ListOperationsService {
             linkedList.clear()
             copyOnWriteArrayList.clear()
             arrayList.clear()
+            Log.d(TAG, "array - ${arrayList.size}, linked - ${linkedList.size}, copy - ${copyOnWriteArrayList.size}")
         }
     }
 
@@ -273,9 +273,9 @@ class ListOperationsService {
         }
     }
 
-    suspend fun cancelCoroutine() {
+    fun cancelCoroutine() {
         mainJob?.cancel()
-        mainJob?.join()
+//        mainJob?.join()
         stopExecute()
     }
     fun addListListeners(listener: ListOperationsListener) {

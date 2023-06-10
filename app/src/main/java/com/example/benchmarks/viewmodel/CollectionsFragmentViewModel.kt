@@ -48,4 +48,9 @@ class CollectionsFragmentViewModel(
         listOperationsService.addListListeners(operationsListener)
         listOperationsService.addExecutingListeners(executingListener)
     }
+
+    override fun onCleared() {
+        super.onCleared()
+        listOperationsService.cancelCoroutine()
+    }
 }
