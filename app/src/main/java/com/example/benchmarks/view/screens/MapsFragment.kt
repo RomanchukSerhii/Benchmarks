@@ -47,10 +47,16 @@ class MapsFragment : Fragment() {
         setButtonListener()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        val enteredText = binding.etTimesAmount.text.toString()
+        outState.putString(ARG_MAPS_SIZE, enteredText)
+    }
+
     private fun setButtonListener() {
         binding.buttonStart.setOnClickListener {
-            val size = binding.etTimesAmount.text.toString().toInt()
-            viewModel.startExecution(size)
+            val enteredText = binding.etTimesAmount.text.toString()
+            viewModel.startExecution(enteredText)
         }
     }
 
@@ -90,5 +96,9 @@ class MapsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        private const val ARG_MAPS_SIZE = "ARG_MAPS_SIZE"
     }
 }

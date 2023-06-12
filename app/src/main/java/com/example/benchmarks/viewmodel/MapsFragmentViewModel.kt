@@ -29,13 +29,24 @@ class MapsFragmentViewModel(
         loadOperations()
     }
 
-    fun startExecution(size: Int) {
-        if (size < 1_000_000 || size > 10_000_000) {
-            _state.value = Error
-            return
+    fun validateCollectionSize(enteredText: String): Boolean {
+        val size = enteredText.toIntOrNull()
+        return if (size == null || size < 1_000_000 || size > 10_000_000) {
+            _state.value = Error(size ?: 0)
+            mapsOperationsService.setCollectionsSize(size ?: 0)
+            false
+        } else {
+            mapsOperationsService.setCollectionsSize(size)
+            _state.value = CollectionsSize(size)
+            true
         }
-        viewModelScope.launch {
-            mapsOperationsService.startOperations(size)
+    }
+
+    fun startExecution(enteredText: String) {
+        if (validateCollectionSize(enteredText)) {
+            viewModelScope.launch {
+                mapsOperationsService.startOperations()
+            }
         }
     }
 

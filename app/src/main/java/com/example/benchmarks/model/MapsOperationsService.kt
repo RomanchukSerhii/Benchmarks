@@ -20,6 +20,7 @@ class MapsOperationsService {
     private var hashMap = HashMap<Int, Int>(10000000)
     private var treeMap = TreeMap<Int, Int>()
     private var mainJob: Job? = null
+    private var collectionsSize = 0
 
     init {
         for (map in MapsType.values()) {
@@ -36,7 +37,12 @@ class MapsOperationsService {
         }
     }
 
-    suspend fun startOperations(size: Int) {
+    fun setCollectionsSize(size: Int) {
+        collectionsSize = size
+        notifyListChanges()
+    }
+
+    suspend fun startOperations() {
         startExecute()
 
         mainJob = myCoroutineScope.launch {
@@ -44,19 +50,19 @@ class MapsOperationsService {
             val hashMapType = MapsType.HASH_MAP
 
             val hashJob = launch {
-                fillHashMap(size)
+                fillHashMap(collectionsSize)
                 launch { addingNewExecutionTime(hashMapType) }
                 launch { searchByKeyExecutionTime(hashMapType) }
                 launch { removingExecutionTime(hashMapType) }
             }
 
             val treeJob = launch {
-                if (size > 8_000_000) {
+                if (collectionsSize > 8_000_000) {
                     fillTreeMap(size = 1_000_000)
                     hashJob.join()
-                    fillTreeMap(1_000_000, size)
+                    fillTreeMap(1_000_000, collectionsSize)
                 } else {
-                    fillTreeMap(size = size)
+                    fillTreeMap(size = collectionsSize)
                 }
                 launch { addingNewExecutionTime(sortedMapType) }
                 launch { searchByKeyExecutionTime(sortedMapType) }

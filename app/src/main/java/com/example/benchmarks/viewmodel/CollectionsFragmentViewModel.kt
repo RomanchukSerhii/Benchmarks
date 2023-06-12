@@ -35,8 +35,8 @@ class CollectionsFragmentViewModel(
             listOperationsService.setCollectionsSize(size ?: 0)
             false
         } else {
-            listOperationsService.setCollectionsSize(size)
             _state.value = CollectionsSize(size)
+            listOperationsService.setCollectionsSize(size)
             true
         }
     }
