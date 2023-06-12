@@ -2,7 +2,6 @@ package com.example.benchmarks.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.view.LayoutInflater
 import android.view.View
 import androidx.core.os.bundleOf
@@ -30,14 +29,14 @@ class MainActivity : AppCompatActivity() {
         MapsFragment()
     }
 
-    private var collectionsSize by notNull<Int>()
+    private var enteredText by notNull<String>()
     private var isExecuted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         if (savedInstanceState != null) {
-            collectionsSize = savedInstanceState.getInt(ARG_COLLECTIONS_SIZE)
+            enteredText = savedInstanceState.getString(ARG_COLLECTIONS_SIZE) ?: ""
             isExecuted = savedInstanceState.getBoolean(KEY_EXECUTED_STATE)
             updateUi()
         }
@@ -53,7 +52,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt(ARG_COLLECTIONS_SIZE, collectionsSize)
+        val enteredText = binding.etEnterCollectionSize.text.toString()
+        outState.putString(ARG_COLLECTIONS_SIZE, enteredText)
         outState.putBoolean(KEY_EXECUTED_STATE, isExecuted)
     }
 
@@ -99,17 +99,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun setClickListeners() {
         binding.buttonCalculate.setOnClickListener {
-            val enteredText = binding.etEnterCollectionSize.text.toString()
+            enteredText = binding.etEnterCollectionSize.text.toString()
             if (enteredText.isBlank()) {
                 binding.etEnterCollectionSize.error = "Error. You need enter elements count."
                 return@setOnClickListener
             }
-            collectionsSize = enteredText.toInt()
+            val collectionsSize = enteredText.toInt()
             if (collectionsSize < 1_000_000 || collectionsSize > 10_000_000) {
                 showValidateDialogFragment(collectionsSize)
             } else {
-                collectionsFragment.arguments = bundleOf(ARG_COLLECTIONS_SIZE to collectionsSize)
-                mapsFragment.arguments = bundleOf(ARG_COLLECTIONS_SIZE to collectionsSize)
+                collectionsFragment.arguments = bundleOf(ARG_COLLECTIONS_SIZE to enteredText)
+                mapsFragment.arguments = bundleOf(ARG_COLLECTIONS_SIZE to enteredText)
                 showViewPager()
                 isExecuted = true
             }
@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupValidateDialogFragmentListener() {
         val listener: ValidateDialogListener = { requestKey, inputNumber ->
             if (requestKey == MAIN_ACTIVITY_REQUEST_KEY) {
-                collectionsSize = inputNumber
+                enteredText = inputNumber.toString()
             }
             updateUi()
         }
@@ -146,7 +146,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateUi() {
-        binding.etEnterCollectionSize.setText(collectionsSize.toString())
+        binding.etEnterCollectionSize.setText(enteredText)
     }
 
     companion object {

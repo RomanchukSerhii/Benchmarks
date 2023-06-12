@@ -31,8 +31,8 @@ class CollectionsFragment : Fragment() {
         OperationListAdapter()
     }
 
-    private val collectionsSize: Int
-        get() = requireArguments().getInt(MainActivity.ARG_COLLECTIONS_SIZE)
+    private val collectionsSize: String
+        get() = requireArguments().getString(MainActivity.ARG_COLLECTIONS_SIZE) ?: ""
 
 
     override fun onCreateView(
@@ -52,8 +52,8 @@ class CollectionsFragment : Fragment() {
             binding.etTimesAmount.setText(size)
             viewModel.validateCollectionSize(size)
         } else {
-            binding.etTimesAmount.setText(collectionsSize.toString())
-            viewModel.startExecution(collectionsSize.toString())
+            binding.etTimesAmount.setText(collectionsSize)
+            viewModel.startExecution(collectionsSize)
         }
         observedViewModel()
         binding.recycler.adapter = operationAdapter
