@@ -48,6 +48,15 @@ class CollectionsFragment : Fragment() {
         setButtonListener()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        val enteredText = binding.etTimesAmount.text.toString()
+        val size = enteredText.toIntOrNull()
+        if (size != null) {
+            outState.putInt(ARG_COLLECTIONS_SIZE, size)
+        }
+    }
+
     private fun setButtonListener() {
         binding.buttonStart.setOnClickListener {
             val size = binding.etTimesAmount.text.toString().toInt()
@@ -92,5 +101,9 @@ class CollectionsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        private const val ARG_COLLECTIONS_SIZE = "ARG_COLLECTIONS_SIZE"
     }
 }

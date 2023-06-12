@@ -31,27 +31,38 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var collectionsSize by notNull<Int>()
+    private var isExecuted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         if (savedInstanceState != null) {
             collectionsSize = savedInstanceState.getInt(ARG_COLLECTIONS_SIZE)
+            isExecuted = savedInstanceState.getBoolean(KEY_EXECUTED_STATE)
             updateUi()
         }
-
-        val fragmentsList = fillFragmentsList()
-        val viewPagerAdapter = ViewPagerAdapter(supportFragmentManager, lifecycle, fragmentsList)
-        binding.viewPager.adapter = viewPagerAdapter
-        setUpTabLayout()
-
-        setClickListeners()
-        setupValidateDialogFragmentListener()
+        if (isExecuted) {
+            setViewPagerAdapter()
+            showViewPager()
+        } else {
+            setViewPagerAdapter()
+            setClickListeners()
+            setupValidateDialogFragmentListener()
+        }
     }
 
-    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
-        super.onSaveInstanceState(outState, outPersistentState)
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
         outState.putInt(ARG_COLLECTIONS_SIZE, collectionsSize)
+        outState.putBoolean(KEY_EXECUTED_STATE, isExecuted)
+    }
+
+    private fun setViewPagerAdapter() {
+        val fragmentsList = fillFragmentsList()
+        val viewPagerAdapter =
+            ViewPagerAdapter(supportFragmentManager, lifecycle, fragmentsList)
+        binding.viewPager.adapter = viewPagerAdapter
+        setUpTabLayout()
     }
 
     private fun setUpTabLayout() {
@@ -99,14 +110,19 @@ class MainActivity : AppCompatActivity() {
             } else {
                 collectionsFragment.arguments = bundleOf(ARG_COLLECTIONS_SIZE to collectionsSize)
                 mapsFragment.arguments = bundleOf(ARG_COLLECTIONS_SIZE to collectionsSize)
-                with(binding) {
-                    tvEnterCollectionTitle.visibility = View.GONE
-                    tilEnterCollectionSize.visibility = View.GONE
-                    viewSpace.visibility = View.GONE
-                    buttonCalculate.visibility = View.GONE
-                    viewPager.visibility = View.VISIBLE
-                }
+                showViewPager()
+                isExecuted = true
             }
+        }
+    }
+
+    private fun showViewPager() {
+        with(binding) {
+            tvEnterCollectionTitle.visibility = View.GONE
+            tilEnterCollectionSize.visibility = View.GONE
+            viewSpace.visibility = View.GONE
+            buttonCalculate.visibility = View.GONE
+            viewPager.visibility = View.VISIBLE
         }
     }
 
@@ -135,6 +151,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val ARG_COLLECTIONS_SIZE = "ARG_COLLECTIONS_SIZE"
+        private const val KEY_EXECUTED_STATE = "KEY_EXECUTED_STATE"
         private const val MAIN_ACTIVITY_REQUEST_KEY = "MAIN_ACTIVITY_REQUEST_KEY"
     }
 }
