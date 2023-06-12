@@ -150,7 +150,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val ARG_COLLECTIONS_SIZE = "ARG_COLLECTIONS_SIZE"
+        const val ARG_COLLECTIONS_SIZE = "ARG_COLLECTIONS_SIZE"
         private const val KEY_EXECUTED_STATE = "KEY_EXECUTED_STATE"
         private const val MAIN_ACTIVITY_REQUEST_KEY = "MAIN_ACTIVITY_REQUEST_KEY"
     }

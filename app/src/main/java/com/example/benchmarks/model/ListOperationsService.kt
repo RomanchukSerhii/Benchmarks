@@ -22,6 +22,7 @@ class ListOperationsService {
     private var copyOnWriteArrayList = CopyOnWriteArrayList<Int>()
     private var linkedList = LinkedList<Int>()
     private var mainJob: Job? = null
+    private var collectionsSize = 0
 
     init {
         for (collection in CollectionsType.values()) {
@@ -38,14 +39,19 @@ class ListOperationsService {
         }
     }
 
-    suspend fun startOperations(size: Int) {
+    fun setCollectionsSize(size: Int) {
+        collectionsSize = size
+        notifyListChanges()
+    }
+
+    suspend fun startOperations() {
         startExecute()
         mainJob = myCoroutineScope.launch {
             val arrayListType = CollectionsType.ARRAY_LIST
             val linkedListType = CollectionsType.LINKED_LIST
             val collectionType = CollectionsType.COPY_ON_WRITE_ARRAY_LIST
 
-            fillLists(size)
+            fillLists(collectionsSize)
             Log.d(TAG, "Array - ${arrayList.size}")
             launch { addingInTheBeginningExecutionTime(arrayListType) }
             launch { addingInTheMiddleExecutionTime(arrayListType) }

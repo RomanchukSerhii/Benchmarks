@@ -15,7 +15,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.benchmarks.R
 import com.example.benchmarks.databinding.PartElementsInputBinding
 
-typealias ValidateDialogListener = (requestKey: String, inputNumber: Int) -> Unit
+typealias ValidateDialogListener = (requestKey: String, collectionsSize: Int) -> Unit
 
 class ValidateDialogFragment : DialogFragment() {
 
