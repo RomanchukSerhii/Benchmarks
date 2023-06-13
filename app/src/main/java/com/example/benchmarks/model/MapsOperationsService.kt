@@ -17,8 +17,8 @@ class MapsOperationsService {
     private val myCoroutineScope = CoroutineScope(Dispatchers.Default)
     private val hashMapLock = Any()
     private val sortedMapLock = Any()
-    private var hashMap = HashMap<Int, Int>(10000000)
-    private var treeMap = TreeMap<Int, Int>()
+    private var hashMap: HashMap<Int, Int>? = null
+    private var treeMap: TreeMap<Int, Int>? = null
     private var mainJob: Job? = null
     private var collectionsSize = 0
 
@@ -70,17 +70,17 @@ class MapsOperationsService {
             }
 
             hashJob.invokeOnCompletion {
-                hashMap.clear()
+                hashMap?.clear()
+                hashMap = null
             }
             treeJob.invokeOnCompletion {
-                treeMap.clear()
+                treeMap?.clear()
+                treeMap = null
             }
         }
 
         mainJob?.invokeOnCompletion {
             notifyExecutingChanges(false)
-            hashMap.clear()
-            treeMap.clear()
         }
     }
 
@@ -133,11 +133,13 @@ class MapsOperationsService {
         if (mainJob?.isActive == true) {
             synchronized(sortedMapLock) {
                 val startTime = System.currentTimeMillis()
-                with(treeMap) {
-                    when (operationName) {
-                        MapsOperations.ADDING_NEW -> put(NEW_KEY, NEW_VALUE)
-                        MapsOperations.SEARCH_BY_KEY -> get(DESIRED_KEY)
-                        MapsOperations.REMOVING -> remove(DESIRED_KEY)
+                treeMap?.let {
+                    with(it) {
+                        when (operationName) {
+                            MapsOperations.ADDING_NEW -> put(NEW_KEY, NEW_VALUE)
+                            MapsOperations.SEARCH_BY_KEY -> get(DESIRED_KEY)
+                            MapsOperations.REMOVING -> remove(DESIRED_KEY)
+                        }
                     }
                 }
                 val finishTime = System.currentTimeMillis()
@@ -152,13 +154,16 @@ class MapsOperationsService {
         if (mainJob?.isActive == true) {
             synchronized(hashMapLock) {
                 val startTime = System.currentTimeMillis()
-                with(hashMap) {
-                    when (operationName) {
-                        MapsOperations.ADDING_NEW -> put(NEW_KEY, NEW_VALUE)
-                        MapsOperations.SEARCH_BY_KEY -> get(DESIRED_KEY)
-                        MapsOperations.REMOVING -> remove(DESIRED_KEY)
+                hashMap?.let {
+                    with(it) {
+                        when (operationName) {
+                            MapsOperations.ADDING_NEW -> put(NEW_KEY, NEW_VALUE)
+                            MapsOperations.SEARCH_BY_KEY -> get(DESIRED_KEY)
+                            MapsOperations.REMOVING -> remove(DESIRED_KEY)
+                        }
                     }
                 }
+
                 val finishTime = System.currentTimeMillis()
                 return (finishTime - startTime).toString()
             }
@@ -190,17 +195,33 @@ class MapsOperationsService {
     }
 
     private fun fillHashMap(size: Int) {
-        for (i in 0 until size) {
-            if (mainJob?.isActive == true) {
-                hashMap[i] = i
+        hashMap = HashMap(size)
+        hashMap?.let {
+            for (i in 0 until size) {
+                if (mainJob?.isActive == true) {
+                    it[i] = i
+                }
             }
         }
     }
     
     private fun fillTreeMap(startIndex: Int = 0, size: Int) {
-        for (i in startIndex until size) {
-            if (mainJob?.isActive == true) {
-                treeMap[i] = i
+        if (treeMap == null) {
+            treeMap = TreeMap()
+            treeMap?.let {
+                for (i in startIndex until size) {
+                    if (mainJob?.isActive == true) {
+                        it[i] = i
+                    }
+                }
+            }
+        } else {
+            treeMap?.let {
+                for (i in startIndex until size) {
+                    if (mainJob?.isActive == true) {
+                        it[i] = i
+                    }
+                }
             }
         }
     }
