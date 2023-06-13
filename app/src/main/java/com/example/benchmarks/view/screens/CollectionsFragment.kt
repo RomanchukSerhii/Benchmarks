@@ -47,14 +47,7 @@ class CollectionsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (savedInstanceState != null) {
-            val size = savedInstanceState.getString(ARG_COLLECTIONS_SIZE) ?: ""
-            binding.etTimesAmount.setText(size)
-            viewModel.validateCollectionSize(size)
-        } else {
-            binding.etTimesAmount.setText(collectionsSize)
-            viewModel.startExecution(collectionsSize)
-        }
+        setValueInEditText(savedInstanceState)
         observedViewModel()
         binding.recycler.adapter = operationAdapter
         setButtonListener()
@@ -70,6 +63,17 @@ class CollectionsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun setValueInEditText(savedInstanceState: Bundle?) {
+        if (savedInstanceState != null) {
+            val size = savedInstanceState.getString(ARG_COLLECTIONS_SIZE) ?: ""
+            binding.etTimesAmount.setText(size)
+            viewModel.validateCollectionSize(size)
+        } else {
+            binding.etTimesAmount.setText(collectionsSize)
+            viewModel.validateCollectionSize(collectionsSize)
+        }
     }
 
     private fun setButtonListener() {

@@ -36,8 +36,8 @@ class MapsFragmentViewModel(
             mapsOperationsService.setCollectionsSize(size ?: 0)
             false
         } else {
-            mapsOperationsService.setCollectionsSize(size)
             _state.value = CollectionsSize(size)
+            mapsOperationsService.setCollectionsSize(size)
             true
         }
     }
