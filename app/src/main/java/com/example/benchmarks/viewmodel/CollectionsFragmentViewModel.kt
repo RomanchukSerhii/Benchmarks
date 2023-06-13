@@ -50,9 +50,7 @@ class CollectionsFragmentViewModel(
     }
 
     fun stopExecution() {
-        viewModelScope.launch {
-            listOperationsService.cancelCoroutine()
-        }
+        listOperationsService.cancelCoroutine()
     }
 
     private fun loadOperations() {

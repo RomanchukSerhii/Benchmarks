@@ -18,9 +18,9 @@ class ListOperationsService {
     private val myCoroutineScope = CoroutineScope(Dispatchers.Default)
     private val arrayListLock = Any()
     private val linkedListLock = Any()
-    private val arrayList = ArrayList<Int>(10000000)
-    private var copyOnWriteArrayList = CopyOnWriteArrayList<Int>()
-    private var linkedList = LinkedList<Int>()
+    private var arrayList: ArrayList<Int>? = null
+    private var copyOnWriteArrayList: CopyOnWriteArrayList<Int>? = null
+    private var linkedList: LinkedList<Int>? = null
     private var mainJob: Job? = null
     private var collectionsSize = 0
 
@@ -52,7 +52,7 @@ class ListOperationsService {
             val collectionType = CollectionsType.COPY_ON_WRITE_ARRAY_LIST
 
             fillLists(collectionsSize)
-            Log.d(TAG, "Array - ${arrayList.size}")
+            Log.d(TAG, "Array - ${arrayList?.size}")
             launch { addingInTheBeginningExecutionTime(arrayListType) }
             launch { addingInTheMiddleExecutionTime(arrayListType) }
             launch { addingInTheEndExecutionTime(arrayListType) }
@@ -80,10 +80,12 @@ class ListOperationsService {
 
         mainJob?.invokeOnCompletion {
             notifyExecutingChanges(false)
-            linkedList.clear()
-            copyOnWriteArrayList.clear()
-            arrayList.clear()
-            Log.d(TAG, "array - ${arrayList.size}, linked - ${linkedList.size}, copy - ${copyOnWriteArrayList.size}")
+            arrayList?.clear()
+            arrayList = null
+            linkedList?.clear()
+            linkedList = null
+            copyOnWriteArrayList?.clear()
+            copyOnWriteArrayList = null
         }
     }
 
@@ -107,15 +109,19 @@ class ListOperationsService {
     }
 
     private fun fillLists(size: Int) {
-        for (i in 0 until size) {
-            if( i == size / 2) {
-                arrayList.add(REQUIRED_VALUE)
-                continue
+        arrayList = ArrayList(size)
+        arrayList?.let {
+            for (i in 0 until size) {
+                if( i == size / 2) {
+                    it.add(REQUIRED_VALUE)
+                    continue
+                }
+                it.add(DIGIT_TO_FILL)
             }
-            arrayList.add(DIGIT_TO_FILL)
+            copyOnWriteArrayList = CopyOnWriteArrayList(it)
+            linkedList = LinkedList(it)
         }
-        copyOnWriteArrayList = CopyOnWriteArrayList(arrayList)
-        linkedList = LinkedList(arrayList)
+
     }
 
     private suspend fun addingInTheBeginningExecutionTime(collectionType: CollectionsType) {
@@ -170,21 +176,25 @@ class ListOperationsService {
     private fun getLinkedListExecutionTime(operationName: CollectionOperations): String {
         if (mainJob?.isActive == true) {
             synchronized(linkedListLock) {
-                val middleIndex = linkedList.size / 2
-                val lastIndex = linkedList.size - 2
                 val startTime = System.currentTimeMillis()
-                with(linkedList) {
-                    when (operationName) {
-                        CollectionOperations.ADDING_IN_THE_BEGINNING -> add(
-                            BEGINNING_INDEX,
-                            DIGIT_TO_ADD
-                        )
-                        CollectionOperations.ADDING_IN_THE_MIDDLE -> add(middleIndex, DIGIT_TO_ADD)
-                        CollectionOperations.ADDING_IN_THE_END -> add(DIGIT_TO_ADD)
-                        CollectionOperations.REMOVING_IN_THE_BEGINNING -> removeAt(BEGINNING_INDEX)
-                        CollectionOperations.REMOVING_IN_THE_MIDDLE -> removeAt(middleIndex)
-                        CollectionOperations.REMOVING_IN_THE_END -> removeAt(lastIndex)
-                        CollectionOperations.SEARCH_BY_VALUE -> find { it == REQUIRED_VALUE }
+                linkedList?.let {
+                    val middleIndex = it.size / 2
+                    val lastIndex = it.size - 2
+                    with(it) {
+                        when (operationName) {
+                            CollectionOperations.ADDING_IN_THE_BEGINNING -> add(
+                                BEGINNING_INDEX,
+                                DIGIT_TO_ADD
+                            )
+                            CollectionOperations.ADDING_IN_THE_MIDDLE -> add(middleIndex, DIGIT_TO_ADD)
+                            CollectionOperations.ADDING_IN_THE_END -> add(DIGIT_TO_ADD)
+                            CollectionOperations.REMOVING_IN_THE_BEGINNING -> removeAt(BEGINNING_INDEX)
+                            CollectionOperations.REMOVING_IN_THE_MIDDLE -> removeAt(middleIndex)
+                            CollectionOperations.REMOVING_IN_THE_END -> removeAt(lastIndex)
+                            CollectionOperations.SEARCH_BY_VALUE -> find { value ->
+                                value == REQUIRED_VALUE
+                            }
+                        }
                     }
                 }
                 val finishTime = System.currentTimeMillis()
@@ -196,12 +206,48 @@ class ListOperationsService {
     }
 
     private fun getArrayListExecutionTime(operationName: CollectionOperations): String {
-        if (mainJob?.isActive == true) {
+        if (mainJob?.isActive == true && arrayList != null) {
             synchronized(arrayListLock) {
-                val middleIndex = arrayList.size / 2
-                val lastIndex = arrayList.size - 2
                 val startTime = System.currentTimeMillis()
-                with(arrayList) {
+                arrayList?.let {
+                    val middleIndex = it.size / 2
+                    val lastIndex = it.size - 2
+                    with(it) {
+                        when (operationName) {
+                            CollectionOperations.ADDING_IN_THE_BEGINNING -> add(
+                                BEGINNING_INDEX,
+                                DIGIT_TO_ADD
+                            )
+                            CollectionOperations.ADDING_IN_THE_MIDDLE -> add(middleIndex,
+                                DIGIT_TO_ADD
+                            )
+                            CollectionOperations.ADDING_IN_THE_END -> add(DIGIT_TO_ADD)
+                            CollectionOperations.REMOVING_IN_THE_BEGINNING -> removeAt(
+                                BEGINNING_INDEX
+                            )
+                            CollectionOperations.REMOVING_IN_THE_MIDDLE -> removeAt(middleIndex)
+                            CollectionOperations.REMOVING_IN_THE_END -> removeAt(lastIndex)
+                            CollectionOperations.SEARCH_BY_VALUE -> find { value ->
+                                value == REQUIRED_VALUE
+                            }
+                        }
+                    }
+                }
+                val finishTime = System.currentTimeMillis()
+                return (finishTime - startTime).toString()
+            }
+        } else {
+            throw CancellationException()
+        }
+    }
+
+    private fun getCopyListExecutionTime(operationName: CollectionOperations): String {
+        if (mainJob?.isActive == true) {
+            val startTime = System.currentTimeMillis()
+            copyOnWriteArrayList?.let {
+                val middleIndex = it.size / 2
+                val lastIndex = it.size - 2
+                with(it) {
                     when (operationName) {
                         CollectionOperations.ADDING_IN_THE_BEGINNING -> add(
                             BEGINNING_INDEX,
@@ -216,38 +262,9 @@ class ListOperationsService {
                         )
                         CollectionOperations.REMOVING_IN_THE_MIDDLE -> removeAt(middleIndex)
                         CollectionOperations.REMOVING_IN_THE_END -> removeAt(lastIndex)
-                        CollectionOperations.SEARCH_BY_VALUE -> find { it == REQUIRED_VALUE }
+                        CollectionOperations.SEARCH_BY_VALUE -> find { value ->
+                            value == REQUIRED_VALUE }
                     }
-                }
-                val finishTime = System.currentTimeMillis()
-                return (finishTime - startTime).toString()
-            }
-        } else {
-            throw CancellationException()
-        }
-    }
-
-    private fun getCopyListExecutionTime(operationName: CollectionOperations): String {
-        if (mainJob?.isActive == true) {
-            val middleIndex = copyOnWriteArrayList.size / 2
-            val lastIndex = copyOnWriteArrayList.size - 2
-            val startTime = System.currentTimeMillis()
-            with(copyOnWriteArrayList) {
-                when (operationName) {
-                    CollectionOperations.ADDING_IN_THE_BEGINNING -> add(
-                        BEGINNING_INDEX,
-                        DIGIT_TO_ADD
-                    )
-                    CollectionOperations.ADDING_IN_THE_MIDDLE -> add(middleIndex,
-                        DIGIT_TO_ADD
-                    )
-                    CollectionOperations.ADDING_IN_THE_END -> add(DIGIT_TO_ADD)
-                    CollectionOperations.REMOVING_IN_THE_BEGINNING -> removeAt(
-                        BEGINNING_INDEX
-                    )
-                    CollectionOperations.REMOVING_IN_THE_MIDDLE -> removeAt(middleIndex)
-                    CollectionOperations.REMOVING_IN_THE_END -> removeAt(lastIndex)
-                    CollectionOperations.SEARCH_BY_VALUE -> find { it == REQUIRED_VALUE }
                 }
             }
             val finishTime = System.currentTimeMillis()
@@ -281,7 +298,6 @@ class ListOperationsService {
 
     fun cancelCoroutine() {
         mainJob?.cancel()
-//        mainJob?.join()
         stopExecute()
     }
     fun addListListeners(listener: ListOperationsListener) {

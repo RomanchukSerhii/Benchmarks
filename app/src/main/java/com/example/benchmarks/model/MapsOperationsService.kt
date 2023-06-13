@@ -58,9 +58,9 @@ class MapsOperationsService {
 
             val treeJob = launch {
                 if (collectionsSize > 8_000_000) {
-                    fillTreeMap(size = 1_000_000)
+                    fillTreeMap(size = 2_000_000)
                     hashJob.join()
-                    fillTreeMap(1_000_000, collectionsSize)
+                    fillTreeMap(2_000_000, collectionsSize)
                 } else {
                     fillTreeMap(size = collectionsSize)
                 }
