@@ -7,16 +7,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import com.example.benchmarks.App
 import com.example.benchmarks.R
 import com.example.benchmarks.view.adapters.OperationListAdapter
 import com.example.benchmarks.databinding.FragmentCollectionsBinding
-import com.example.benchmarks.factory
 import com.example.benchmarks.view.MainActivity
 import com.example.benchmarks.viewmodel.CollectionsFragmentViewModel
 import com.example.benchmarks.viewmodel.CollectionsSize
 import com.example.benchmarks.viewmodel.Executing
 import com.example.benchmarks.viewmodel.Result
 import com.example.benchmarks.viewmodel.Error
+import com.example.benchmarks.viewmodel.ViewModelFactory
+import javax.inject.Inject
 
 class CollectionsFragment : Fragment() {
 
@@ -24,8 +26,15 @@ class CollectionsFragment : Fragment() {
     private val binding: FragmentCollectionsBinding
         get() = _binding ?: throw RuntimeException("FragmentCollectionsBinding == null")
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
     private val viewModel by lazy {
-        ViewModelProvider(this, factory())[CollectionsFragmentViewModel::class.java]
+        ViewModelProvider(this, viewModelFactory)[CollectionsFragmentViewModel::class.java]
+    }
+
+    private val component by lazy {
+        (requireActivity().application as App).component
     }
 
     private val operationAdapter: OperationListAdapter by lazy {
@@ -42,6 +51,7 @@ class CollectionsFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentCollectionsBinding.inflate(inflater, container, false)
+        component.inject(this)
 
         return binding.root
     }

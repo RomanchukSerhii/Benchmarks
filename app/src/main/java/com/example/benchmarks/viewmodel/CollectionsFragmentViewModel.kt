@@ -8,8 +8,9 @@ import com.example.benchmarks.ExecutingListener
 import com.example.benchmarks.ListOperationsListener
 import com.example.benchmarks.model.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CollectionsFragmentViewModel(
+class CollectionsFragmentViewModel @Inject constructor(
     private val listOperationsService: ListOperationsService
 ) : ViewModel() {
 

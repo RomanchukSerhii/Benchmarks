@@ -9,8 +9,9 @@ import com.example.benchmarks.MapsOperationsListener
 import com.example.benchmarks.model.MapsOperationsService
 import com.example.benchmarks.model.Operation
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MapsFragmentViewModel(
+class MapsFragmentViewModel @Inject constructor(
     private val mapsOperationsService: MapsOperationsService
 ): ViewModel() {
 

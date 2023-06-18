@@ -2,14 +2,17 @@ package com.example.benchmarks.model
 
 import com.example.benchmarks.ExecutingListener
 import com.example.benchmarks.MapsOperationsListener
+import com.example.benchmarks.di.annotations.ApplicationScope
 import com.example.benchmarks.model.enums.MapsType
 import com.example.benchmarks.model.enums.MapsOperations
 import kotlinx.coroutines.*
 import java.util.*
+import javax.inject.Inject
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
-class MapsOperationsService {
+@ApplicationScope
+class MapsOperationsService @Inject constructor(){
 
     private var operations = mutableListOf<Operation>()
     private val mapsOperationsListeners = mutableSetOf<MapsOperationsListener>()

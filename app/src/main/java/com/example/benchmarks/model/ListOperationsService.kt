@@ -3,14 +3,17 @@ package com.example.benchmarks.model
 import android.util.Log
 import com.example.benchmarks.ExecutingListener
 import com.example.benchmarks.ListOperationsListener
+import com.example.benchmarks.di.annotations.ApplicationScope
 import com.example.benchmarks.model.enums.CollectionsType
 import com.example.benchmarks.model.enums.CollectionOperations
 import kotlinx.coroutines.*
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
+import javax.inject.Inject
 import kotlin.collections.ArrayList
 
-class ListOperationsService {
+@ApplicationScope
+class ListOperationsService @Inject constructor() {
 
     private var operations = mutableListOf<Operation>()
     private val listOperationsListeners = mutableSetOf<ListOperationsListener>()

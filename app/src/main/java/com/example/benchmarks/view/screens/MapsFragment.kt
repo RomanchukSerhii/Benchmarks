@@ -6,9 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import com.example.benchmarks.App
 import com.example.benchmarks.R
 import com.example.benchmarks.databinding.FragmentMapsBinding
-import com.example.benchmarks.factory
 import com.example.benchmarks.view.MainActivity
 import com.example.benchmarks.view.adapters.OperationListAdapter
 import com.example.benchmarks.viewmodel.CollectionsSize
@@ -16,6 +16,8 @@ import com.example.benchmarks.viewmodel.Error
 import com.example.benchmarks.viewmodel.Executing
 import com.example.benchmarks.viewmodel.MapsFragmentViewModel
 import com.example.benchmarks.viewmodel.Result
+import com.example.benchmarks.viewmodel.ViewModelFactory
+import javax.inject.Inject
 
 
 class MapsFragment : Fragment() {
@@ -24,8 +26,15 @@ class MapsFragment : Fragment() {
     private val binding: FragmentMapsBinding
         get() = _binding ?: throw RuntimeException("FragmentMapsBinding == null")
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
     private val viewModel by lazy {
-        ViewModelProvider(this, factory())[MapsFragmentViewModel::class.java]
+        ViewModelProvider(this, viewModelFactory)[MapsFragmentViewModel::class.java]
+    }
+
+    private val component by lazy {
+        (requireActivity().application as App).component
     }
 
     private val operationAdapter: OperationListAdapter by lazy {
@@ -41,6 +50,7 @@ class MapsFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentMapsBinding.inflate(inflater, container, false)
+        component.inject(this)
         return binding.root
     }
 
